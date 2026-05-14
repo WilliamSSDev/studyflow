@@ -51,6 +51,9 @@
             <div class="user-profile">
                 <i class="fa-solid fa-user"></i>
                 <span id="user-info"></span>
+                <button class="logout-button" id="logout-button">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
             </div>
 
         </header>
@@ -64,22 +67,22 @@
 
                     <div class="card" id="open-add-card">
                         <i class="fa-solid fa-plus"></i>
-                        <h3>Adicionar Carta</h3>
+                        <h3 class="sidebar-texts">Adicionar Carta</h3>
                     </div>
 
                     <div class="card" id="review-cards">
                         <i class="fa-solid fa-book-open"></i>
-                        <h3>Revisar Cartas</h3>
+                        <h3 class="sidebar-texts">Revisar Cartas</h3>
                     </div>
 
                     <div class="card">
                         <i class="fa-solid fa-chart-simple"></i>
-                        <h3>Estatísticas</h3>
+                        <h3 class="sidebar-texts">Estatísticas</h3>
                     </div>
 
                     <div class="card" id="view-cards">
                         <i class="fa-solid fa-chart-simple"></i>
-                        <h3>Ver cartas</h3>
+                        <h3 class="sidebar-texts">Ver cartas</h3>
                     </div>
 
                 </section>
@@ -90,7 +93,7 @@
                     <!-- VIEW CARDS -->
                     <section class="view-cards-window" id="view-cards-window">
 
-                        <h2>Cartas</h2>
+                        <h2 class="cartas-text">Cartas</h2>
 
                         <table class="cards-table-class" id="cards-table">
 
@@ -122,7 +125,7 @@
 
                             <div class="review-front">
 
-                                <h3>Pergunta</h3>
+                                <h3 id="question-text-field">Pergunta</h3>
 
                                 <p id="review-front-content">
                                     O que é Python?
@@ -150,19 +153,24 @@
 
                             <div class="difficulty-buttons" id="difficulty-buttons">
 
-                                <button class="easy-button">
-                                    Easy
-                                </button>
-
-                                <button class="medium-button">
-                                    Medium
-                                </button>
-
-                                <button class="hard-button">
-                                    Hard
-                                </button>
+                                <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+                                <button class="difficulty-btn" data-difficulty="medium">Medium</button>
+                                <button class="difficulty-btn" data-difficulty="hard">Hard</button>
 
                             </div>
+
+                        </div>
+
+                    </section>
+
+                    <!-- NO CARDS STATE -->
+                    <section class="empty-review-section" id="empty-review-section">
+
+                        <div class="empty-container">
+
+                            <h2>YOU ALREADY REVIEWED ALL CARDS</h2>
+
+                            <p>Come back later or add new cards to continue studying.</p>
 
                         </div>
 

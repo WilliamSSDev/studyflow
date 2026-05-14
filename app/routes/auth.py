@@ -142,3 +142,12 @@ async def protected(request: Request, usuario = Depends(verify_token)):
         return {"error": "not authenticated", "authenticated": False}
 
     return {"message": "you are authenticated", "authenticated": True}
+
+
+@auth_route.post("/logout")
+async def logout_user(response: Response):
+
+    response.delete_cookie("access_token")
+    response.delete_cookie("refresh_token")
+
+    return {"message": "Logged out successfully"}

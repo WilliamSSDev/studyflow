@@ -37,11 +37,25 @@ const viewCardsElement =
 const tableBody =
     document.getElementById("cards-table-body");
 
+const questionField = document.getElementById('review-front-content');
+
+const answerField = document.getElementById('review-back-content');
+
 const viewCardsWindow = document.getElementById("view-cards-window");
 
 const removeCards = document.getElementById("remove-all-cards")
 
 const answerButton = document.getElementById("show-answer-button")
+
+const emptyReviewSection = 
+        document.getElementById("empty-review-section");
+
+const logoutButton = document.getElementById("logout-button");
+
+// Difficulty buttons
+const easyButton = document.getElementById("easy-button")
+const mediumButton = document.getElementById("medium-button")
+const hardButton = document.getElementById("hard-button")
 
 
 // =========================
@@ -52,6 +66,7 @@ let isCardWindowOpened = false
 let isViewCardWindowOpened = false
 let isRemoveButtonVisible = false
 let isReviewSectionOpened = false;
+let currentCard = null
 let selectedCardsToRemove = []
 
 
@@ -142,12 +157,19 @@ async function reviewCard(){
     const response = await apiFetch(pickCardUrl)
 
     const jsonResponse = await response.json();
-
     const card = jsonResponse.card;
+
 
     if (!card){
         return null
     }
+
+    console.log("FRONT CONTENT: ", card.front_content);
+
+    currentCard = card
+
+    questionField.textContent = card.front_content;
+    answerField.textContent = card.back_content;
 
     return card
 }
@@ -181,7 +203,7 @@ async function addCard(frontContent, backContent) {
 // UI FUNCTIONS
 // =========================
 
-function toggleReviewSection() {
+function toggleReviewSection(cards) {
 
     const shouldOpen =
         !isReviewSectionOpened;
@@ -190,13 +212,20 @@ function toggleReviewSection() {
 
     if (shouldOpen) {
 
-        reviewSection.style.display = "flex";
-
+        if (!cards){
+            console.log("empty review section is been displayed.")
+            emptyReviewSection.style.display = "flex"
+        } else {
+            console.log("review section is been displayed.")
+            reviewSection.style.display = "flex";
+        }
         isReviewSectionOpened = true;
+        
 
     } else {
 
         reviewSection.style.display = "none";
+        emptyReviewSection.style.display = "none"
 
         isReviewSectionOpened = false;
     }
@@ -223,11 +252,15 @@ function hideAllSections() {
 
     reviewSection.style.display = "none";
 
+    emptyReviewSection.style.display = "none"
+
     isCardWindowOpened = false;
 
     isViewCardWindowOpened = false;
 
     isReviewSectionOpened = false;
+
+    
 
     resetSelectedCards();
 }
@@ -332,15 +365,28 @@ async function authenticateUser() {
 answerButton.addEventListener("click", () => {
 
     const answerField = document.getElementById("review-back");
+    const difficultyButtons = document.getElementById("difficulty-buttons");
 
     answerField.style.display = 'flex';
+    difficultyButtons.style.display = 'flex';
 
 });
 
-reviewCardsButton.addEventListener("click", () => {
+reviewCardsButton.addEventListener("click", async() => {
 
-    toggleReviewSection();
+    const hasCards = await reviewCard()
+    toggleReviewSection(hasCards);
+    
+});
 
+logoutButton.addEventListener("click", async () => {
+
+    await fetch("http://localhost:8000/auth/logout", {
+        method: "POST",
+        credentials: "include"
+    });
+
+    window.location.href = "login_page.html";
 });
 
 addCardButton.addEventListener("click", () => {
@@ -491,10 +537,31 @@ viewCardsButton.addEventListener("click", async () => {
 
 
     });
+    
 })
+
+document.querySelectorAll(".difficulty-btn").forEach(button => {
+    button.addEventListener("click", async (event) => {
+
+        const difficulty = event.target.dataset.difficulty;
+        const cardID = currentCard.id;
+
+        const updateCardUrl =
+            `http://localhost:8000/cards/update_card?difficulty=${difficulty}&card_id=${cardID}`;
+
+        const response = await apiFetch(updateCardUrl, {
+            method: "POST"
+        });
+
+        const jsonResp = await response.json();
+
+        console.log(jsonResp.message);
+    });
+});
 // =========================
 // APP INITIALIZATION
 // =========================
+
 
 window.addEventListener("DOMContentLoaded", async () => {
 

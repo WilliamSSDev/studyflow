@@ -44,3 +44,10 @@ a {
 a i {
     margin-right: 8px;
 }
+
+
+.no-account-text {
+    color: white;
+    margin-top: 20px;
+    text-align: center;
+}
