@@ -16,8 +16,8 @@ auth_route = APIRouter(prefix="/auth", tags=["auth"])
 SECRET_KEY = os.getenv('SECRET_KEY')
 ALGORITHM = os.getenv('ALGORITHM')
 
-@limiter.limit("5/minute")
 @auth_route.post('/register', response_model=UserResponse)
+@limiter.limit("5/minute")
 async def register(request: Request, usuario: UserRegister, session: Session = Depends(get_session)):
     admin = False
     has_user = session.query(User).filter(User.email==usuario.email).first()
@@ -97,8 +97,8 @@ async def login_form(response: Response, user: OAuth2PasswordRequestForm = Depen
     
     return {"access_token": bearer_token, "refresh_token": refresh_token, "token_type": 'Bearer '}
 
-@limiter.limit("5/minute")
 @auth_route.post(path="/refresh")
+@limiter.limit("5/minute")
 async def use_refresh_token(response: Response, request: Request, session = Depends(get_session)):
 
     # Get cookies

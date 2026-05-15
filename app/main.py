@@ -3,7 +3,7 @@ from app.routes.auth import auth_route
 from app.routes.user import user_route
 from app.routes.cards import cards_route
 from fastapi.middleware.cors import CORSMiddleware
-from app.utils import limiter
+from app.utils import limiter,SlowAPIMiddleware
 
 app = FastAPI()
 
@@ -15,11 +15,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+
 app.include_router(auth_route)
 app.include_router(user_route)
 app.include_router(cards_route)
 
 app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
 
 """
 Anki-like Flashcard Application
