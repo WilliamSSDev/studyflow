@@ -12,6 +12,7 @@ body {
     color: white;
     font-family: Arial, Helvetica, sans-serif;
     line-height: 1.5;
+    min-height: 100vh;
 }
 
 /* ============================================================
@@ -50,21 +51,23 @@ body {
     }
 }
 
-/* Utility class if you want to trigger via JS */
 .animate-in {
     animation: contentAppear 0.4s ease forwards;
 }
 
 /* ============================================================
-   3. LAYOUT & HEADER
+   3. LAYOUT & HEADER (Garante consistência do topo fixo)
    ============================================================ */
 .dashboard {
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
     position: fixed;
     top: 0;
+    left: 0;
     width: 100%;
     z-index: 1000;
     display: flex;
@@ -76,50 +79,38 @@ body {
     animation: headerAppear 0.4s ease;
 }
 
-.logout-button {
-    background-color: transparent;
-    width: 30px;
-    height: 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: none;
-    cursor: pointer;
-}
-.logout-button:hover {
-    background-color: red;
-    width: 30px;
-    height: 30px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: none;
-    cursor: pointer;
-}
-
 .logo {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 800;
     color: white;
 }
 
 .logo span {
     background: linear-gradient(90deg, #8329de, #3050bb);
-
     background-clip: text;
     -webkit-background-clip: text;
-
     color: transparent;
     -webkit-text-fill-color: transparent;
 }
-.show-answer-button{
-    background: linear-gradient(90deg, #8329de, #3050bb);
+
+.logout-button {
+    background-color: transparent;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #64748b;
+    transition: 0.2s ease;
 }
 
+.logout-button:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
 
 nav ul {
     display: flex;
@@ -137,86 +128,144 @@ nav a:hover {
     color: #60a5fa;
 }
 
-.user-profile {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 /* ============================================================
-   4. MAIN CONTENT AREA
+   4. DISTRIBUIÇÃO DAS 3 COLUNAS (O Coração do Layout)
    ============================================================ */
 .content {
     display: flex;
+    justify-content: space-between;
     align-items: flex-start;
+    padding: 120px 40px 40px 40px; /* Compensa a altura do header fixo igualmente para todos */
+    gap: 30px;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
 }
 
+/* COLUNA 1: BARRA ESQUERDA (Menu de Decks) */
+.cards-container {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-shrink: 0;
+    animation: sidebarAppear 0.4s ease;
+}
+
+.hub {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.card {
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.card i {
+    font-size: 1.8rem;
+    color: #6366f1;
+}
+
+.sidebar-texts {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+}
+
+.card:hover {
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.card.active {
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.card.active i,
+.card.active h3 {
+    color: #ffffff !important;
+}
+
+/* COLUNA 2: ÁREA CENTRAL DINÂMICA (Miolo principal) */
 .main-content {
     flex: 1;
-    width: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0; /* Evita que tabelas ou conteúdos estourem o flex-box */
 }
 
-/* Base style for all dynamic sections */
+/* Regra base para os módulos do sistema central */
 .review-section, 
 .view-cards-window, 
 .add-card-section {
-    border-radius: 20px;
-    margin-top: 170px;
-    display: none; /* Controlled by JS */
+    width: 100%;
+    max-width: 850px;
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
+    padding: 35px;
+    display: none; /* Controlado nativamente por JS */
     animation: contentAppear 0.5s ease-out forwards;
-    width: 80%;
-    background: linear-gradient(90deg, #8329de, #3050bb); /* Mesma cor da sua carta */
-    transform: translateX(100px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
 }
 
+/* Modificadores estéticos do ambiente de revisão */
 .review-section {
     background: transparent;
-    backdrop-filter: blur(10px);
-    width: 100%;
-    overflow: hidden;
-    padding: 30px;
+    border: none;
+    box-shadow: none;
+    padding: 0;
 }
 
 /* ============================================================
-   CAROUSEL DECK SYSTEM
+   5. FLASHCARD CAROUSEL & 3D FLIP SYSTEM
    ============================================================ */
-
-/* The main outer window containing our study module */
 .review-card-container {
-    max-width: 1600px;
-    overflow: hidden; /* CRITICAL: Prevents your page from getting a horizontal scrollbar */
-    padding: 20px;
     width: 100%;
-    margin-top: 30px;
     display: flex;
     flex-direction: column;
-    gap: 25px;
-    width: 100%;
+    gap: 30px;
 }
 
-/* Remove standard list bullet points and padding */
 .cards {
     list-style: none;
     padding: 0;
     margin: 0;
-    perspective: 1000px; /* Provides depth for our flip */
+    perspective: 1200px;
 }
 
-/* Update the Frame */
-.cards li {
+.flashcard-item {
     width: 100%;
-    max-width: 1000px; /* Limits how wide it gets on big screens */
-    height: 350px;    /* Defined height so it doesn't collapse */
-    margin: 0 auto;   /* Centers the card in the container */
+    height: 380px;
     position: relative;
-    list-style: none;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
     background: transparent;
 }
 
-/* Base comum para as duas cartas fantasmas de fundo */
-.cards li::before,
-.cards li::after {
+/* Sistema de cartas falsas de profundidade empilhadas atrás */
+.flashcard-item::before,
+.flashcard-item::after {
     content: "";
     position: absolute;
     left: 0;
@@ -224,97 +273,25 @@ nav a:hover {
     bottom: 0;
     height: 100%;
     border-radius: 24px;
-    background: linear-gradient(90deg, #8329de, #3050bb); /* Mesma cor da sua carta */
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-    pointer-events: none; /* Garante que o usuário não clique nelas sem querer */
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
-}
-
-/* SEGUNDA CARTA (A que fica logo atrás da principal) */
-.cards li::before {
-    z-index: -1; /* Fica uma camada para trás */
-    opacity: 0.40; /* Um pouco transparente */
-    
-    /* ESCALA: 96% da largura original
-       POSIÇÃO: Empurrada 8px para baixo */
-    transform: translateY(8px) scaleX(0.96);
-}
-
-/* TERCEIRA CARTA (A que fica mais ao fundo de todas) */
-.cards li::after {
-    z-index: -2; /* Fica duas camadas para trás */
-    opacity: 0.15; /* Mais transparente ainda */
-    
-    /* ESCALA: 92% da largura original
-       POSIÇÃO: Empurrada 16px para baixo */
-    transform: translateY(16px) scaleX(0.92);
-}
-
-.question-text-field, .answer-text-field {
-    display: inline-block;
-
-    padding: 8px 18px;
-
-    border: 2px solid transparent;
-    border-radius: 999px;
-
-    background:
-        linear-gradient(#334155, #334155) padding-box,
-        linear-gradient(90deg, #8329de, #3050bb) border-box;
-
-    color: white;
-
-    font-size: 1rem;
-    font-weight: 600;
-}
-
-
-/* Ensure Front and Back fill the li exactly */
-.review-front, .review-back {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    border-radius: 24px;
-    padding: 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /*Centers text vertically */
-    align-items: center;     /* Centers text horizontally */
-    text-align: center;
-    background-color: #334155;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    box-sizing: border-box; /* Critical: keeps padding inside the width */
     background: linear-gradient(90deg, #8329de, #3050bb);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    transition: transform 0.4s ease, opacity 0.4s ease;
 }
 
-
-
-.cards{
-    width: 100%;
-    height: 100%;
+.flashcard-item::before {
+    z-index: -1;
+    opacity: 0.40;
+    transform: translateY(12px) scaleX(0.95);
 }
 
-/* SWIPE ACTION STATUS CLASSES (Controlled via JS) */
-
-/* 1. Send old card flying off to the left side */
-.cards li.swipe-left {
-    transform: translateX(-150%) rotate(-10deg); /* Slides out left with a sleek spin tilt */
-    opacity: 0;
+.flashcard-item::after {
+    z-index: -2;
+    opacity: 0.15;
+    transform: translateY(24px) scaleX(0.90);
 }
 
-/* 2. Hide card instantly on the right side preparing to enter */
-.cards li.prepare-right {
-    transition: none !important; /* Disables animations so it teleports silently */
-    transform: translateX(150%);
-    opacity: 0;
-}
-
-/* ============================================================
-   3D CARD ELEMENTS (Flipping inside the carousel frame)
-   ============================================================ */
+/* Mecanismo 3D real */
 .review-card-inner {
     width: 100%;
     height: 100%;
@@ -327,72 +304,355 @@ nav a:hover {
     transform: rotateY(180deg);
 }
 
+.review-front, .review-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
 
 .review-back {
-    background-color: #2d3748;
-    /* transform: rotateY(180deg); */
+    transform: rotateY(180deg); /* Correção da rotação do verso */
+}
+
+/* Badges estilizados de Pergunta/Resposta */
+.question-text-field, .answer-text-field {
+    display: inline-block;
+    padding: 6px 16px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: linear-gradient(#1e293b, #1e293b) padding-box,
+                linear-gradient(90deg, #8329de, #3050bb) border-box;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.review-front p, .review-back p {
+    font-size: 1.5rem;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* Swipe animações controladas via JS */
+.cards li.swipe-left {
+    transform: translateX(-150%) rotate(-10deg);
+    opacity: 0;
+}
+
+.cards li.prepare-right {
+    transition: none !important;
+    transform: translateX(150%);
+    opacity: 0;
 }
 
 /* ============================================================
-   5. SIDEBAR (CARDS)
+   6. CONTROLES E HUD DE DIFICULDADE (Alinhados com a carta)
    ============================================================ */
-.cards-container {
+.review-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.show-answer-button {
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    font-weight: 600;
+    padding: 14px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(131, 41, 222, 0.3);
+}
+
+.show-answer-button:hover {
+    background: linear-gradient(90deg, #9333ea, #2563eb);
+    transform: translateY(-2px);
+}
+
+.difficulty-buttons {
+    display: none; /* Ativado via JS para flex */
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 16px 24px;
+    width: 100%;
+}
+
+.difficulty-btn {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 12px;
+    text-align: left;
+    flex: 1;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.difficulty-btn:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.difficulty-btn:active {
+    transform: scale(0.96);
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.btn-texts {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.btn-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Cores específicas do HUD */
+.difficulty-btn.hard .btn-title { color: #f43f5e; }
+.difficulty-btn.hard .btn-icon { color: #f43f5e; background-color: rgba(244, 63, 94, 0.1); }
+
+.difficulty-btn.medium .btn-title { color: #eab308; }
+.difficulty-btn.medium .btn-icon { color: #eab308; background-color: rgba(234, 179, 8, 0.1); }
+
+.difficulty-btn.good .btn-title { color: #3b82f6; }
+.difficulty-btn.good .btn-icon { color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
+
+.difficulty-btn.easy .btn-title { color: #10b981; }
+.difficulty-btn.easy .btn-icon { color: #10b981; background-color: rgba(16, 185, 129, 0.1); }
+
+/* ============================================================
+   7. VIEW CARDS (Configurações Limpas da Tabela)
+   ============================================================ */
+.view-cards-window h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.cards-table-class {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.cards-table-class th {
+    text-align: left;
+    padding: 14px;
+    border-bottom: 2px solid #334155;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.cards-table-class td {
+    padding: 14px;
+    border-bottom: 1px solid #1e293b;
+    max-width: 250px;
+    word-break: break-word;
+    color: #e2e8f0;
+}
+
+.cards-table-class tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.actions-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+/* ============================================================
+   8. FORMS & INPUTS (Módulo de adicionar cartas)
+   ============================================================ */
+.add-card-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+form label {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-bottom: -10px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    background-color: #0e172b;
+    color: white;
+    resize: none;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+textarea {
+    min-height: 120px;
+}
+
+button {
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background-color: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+button:hover {
+    background-color: #3b82f6;
+}
+
+/* ============================================================
+   9. COLUNA 3: BARRA LATERAL DIREITA (Resumo & Dicas)
+   ============================================================ */
+.right-sidebar {
+    width: 280px;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    margin-top: 112px;
-    margin-left: 30px;
-    width: 420px;
-    height: 1200px;
     flex-shrink: 0;
-    animation: sidebarAppear 0.4s ease;
-    border-right: 1px solid transparent;
-    border-color: #334155;
 }
 
-.hub{
-    color: #d1d1d1;
+.info-card {
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-.difficulty-panel{
-    margin-top: 100px;
+.sidebar-right-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.summary-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.stat-texts {
+    display: flex;
     flex-direction: column;
 }
 
-.card {
-    background-color: transparent;
-    border-radius: 18px;
-    margin-top: 20px;
-    padding: 35px;
-    width: 320px;
-    height: 100px;
-    align-items: left;
-    text-align: left;
-    cursor: pointer;
-    border: 1px solid transparent;
-    overflow: hidden;
-    transition: width 0.35s ease, height 0.35s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.25s ease;
+.stat-number {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
 }
 
-.card:hover{
-    background: linear-gradient(90deg, #8329de, #3050bb);
-    border-left: #16a34a;
+.stat-label {
+    font-size: 0.8rem;
+    color: #64748b;
 }
 
-/* Quando o card for clicado (Ativo) */
-.card.active {
-    /* Aplica o degradê idêntico ao do seu card principal */
-    background: linear-gradient(90deg, #8329de, #3050bb);
-    transform: translateX(5px); /* Um leve empurrãozinho para a direita para dar feedback de clique */
-    border-color: rgba(255, 255, 255, 0.2);
+/* Configurações de cores dos badges de progresso */
+.cards-total { color: #a855f7; background-color: rgba(168, 85, 247, 0.12); }
+.cards-studied { color: #3b82f6; background-color: rgba(59, 130, 246, 0.12); }
+.cards-correct { color: #10b981; background-color: rgba(16, 185, 129, 0.12); }
+.cards-streak { color: #f97316; background-color: rgba(249, 115, 22, 0.12); }
+
+.tip-box .sidebar-right-title i {
+    color: #eab308;
+    margin-right: 6px;
 }
 
-/* Garante que o texto e o ícone fiquem brancos e visíveis por cima do degradê */
-.card.active i,
-.card.active .sidebar-texts {
-    color: #ffffff !important;
-    opacity: 1;
-    transform: none;
+.tip-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    transition: opacity 0.25s ease-in-out;
+}
+
+/* ============================================================
+   10. ESTADOS VAZIOS (Telas de aviso)
+   ============================================================ */
+.empty-review-section {
+    display: none;
+    background-color: #151f32;
+    padding: 50px 30px;
+    border-radius: 24px;
+    text-align: center;
+    width: 100%;
+    max-width: 850px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.empty-container h2 {
+    font-size: 1.6rem;
+    color: #60a5fa;
+    margin-bottom: 12px;
+}
+
+.empty-container p {
+    color: #94a3b8;
+    font-size: 1rem;
 }
 
 /* Container do card lateral de progresso */
@@ -410,7 +670,7 @@ nav a:hover {
 
 .progress-box h3 {
     font-size: 1rem;
-    color: #ffffff;
+    color: #94a3b8;
     font-weight: 500;
 }
 
@@ -481,413 +741,4 @@ nav a:hover {
 }
 .progress-link:hover {
     color: #818cf8;
-}
-
-
-/* .card:hover {
-    width: 320px;
-    height: 150px;
-    background-color: #334155;
-    border-color: #60a5fa;
-    transform: translate(5px, -5px);
-} */
-
-.sidebar-texts {
-    opacity: 1;
-    transform: translateY(-50px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    pointer-events: none;
-    text-align: center;
-    margin-left: 40px;
-    font-weight: normal;
-}
-
-.card:hover .sidebar-texts {
-    opacity: 1;
-}
-
-.card i {
-    font-size: 34px;
-    margin-bottom: 15px;
-}
-
-.card h3 {
-    font-size: 24px;
-}
-
-/* ============================================================
-   6. REVIEW SECTION
-   ============================================================ */
-.empty-review-section {
-    display: none;
-    background-color: #1e293b;
-    padding: 50px;
-    border-radius: 20px;
-    margin-top: 80px;
-    text-align: center;
-}
-
-.empty-container h2 {
-    font-size: 28px;
-    color: #93c5fd;
-    margin-bottom: 10px;
-}
-
-.empty-container p {
-    color: #cbd5e1;
-    font-size: 18px;
-}
-
-.review-back {
-    display: none; /* Shown when user clicks "Show Answer" */
-}
-
-.review-front h3, .review-back h3 {
-    margin-bottom: 15px;
-    color: #ffffff;
-    font-weight: normal;
-}
-
-.review-front p, .review-back p {
-    font-size: 22px;
-}
-
-.review-actions {
-    display: flex;
-    justify-content: center;
-}
-
-.difficulty-buttons {
-    display: none;
-    gap: 20px;
-    justify-content: center;
-}
-
-/* ============================================================
-   7. VIEW CARDS (TABLE)
-   ============================================================ */
-.view-cards-window {
-    padding: 30px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-}
-
-.view-cards-window h2 {
-    margin-bottom: 25px;
-    font-size: 36px;
-}
-
-.cards-table-class {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 18px;
-}
-
-.cards-table-class th {
-    text-align: left;
-    padding: 18px;
-    border-bottom: 2px solid #334155;
-    color: #cbd5e1;
-    font-size: 20px;
-}
-
-.cards-table-class td {
-    padding: 18px;
-    border-bottom: 1px solid #334155;
-    max-width: 300px;
-    word-break: break-word;
-}
-
-.cards-table-class tr:hover {
-    background-color: #334155;
-}
-
-.selected-row {
-    background-color: #334155;
-}
-
-/* ============================================================
-   8. FORMS & BUTTONS
-   ============================================================ */
-.add-card-section {
-    padding: 40px;
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 20px;
-}
-
-input, textarea {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 10px;
-    background-color: #334155;
-    color: white;
-    resize: none;
-    font-size: 16px;
-}
-
-textarea {
-    min-height: 150px;
-}
-
-button {
-    padding: 15px;
-    border: none;
-    border-radius: 10px;
-    background-color: #2563eb;
-    color: white;
-    cursor: pointer;
-    font-size: 16px;
-    transition: 0.2s;
-}
-
-button:hover {
-    background-color: #3b82f6;
-}
-
-.easy-button { background-color: #16a34a; }
-.medium-button { background-color: #ca8a04; }
-.hard-button { background-color: #dc2626; }
-
-.actions-bar {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 50px;
-}
-
-.remove-all-cards {
-    display: none;
-}
-
-h3 {
-    color: white;
-}
-
-/* ============================================================
-   PAINEL DE DIFICULDADES (HUD INFERIOR)
-   ============================================================ */
-
-/* O contêiner horizontal cinza escuro que agrupa os botões */
-.difficulty-buttons {
-    display: none; /* Controlado pelo seu JS (mude para 'flex' para testar visualmente) */
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    
-    background-color: #151f32; /* Fundo bem escuro arredondado */
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 20px;
-    padding: 20px 35px;
-    width: 100%;
-    max-width: 1000px; /* Alinha com a largura máxima da sua carta */
-    margin: 25px auto 0 auto;
-}
-
-/* Estilização base de cada botão individual */
-.difficulty-btn {
-    background: transparent;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    cursor: pointer;
-    padding: 10px 15px;
-    border-radius: 12px;
-    text-align: left;
-    flex: 1; /* Faz todos os botões terem larguras iguais */
-    transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-/* Efeito de clique sutil para feedback do usuário */
-.difficulty-btn:hover {
-    background-color: rgba(255, 255, 255, 0.03);
-}
-.difficulty-btn:active {
-    transform: scale(0.98);
-}
-
-/* O contêiner circular do ícone à esquerda */
-.btn-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    background-color: rgba(255, 255, 255, 0.03); /* Fundo sutil para o círculo */
-}
-
-/* Caixa empilhada dos textos */
-.btn-texts {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-/* Título principal (Ex: Difícil, Médio) */
-.btn-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-}
-
-/* Descrição menor abaixo (Ex: "Não lembrei") */
-.btn-desc {
-    font-size: 0.85rem;
-    color: #64748b; /* Cinza fosco idêntico ao da foto */
-}
-
-/* ============================================================
-   CORES ESPECÍFICAS DE CADA STATUS (COPIADO DA FOTO)
-   ============================================================ */
-
-/* 1. DIFÍCIL (Vermelho/Rosa) */
-.difficulty-btn.hard .btn-title { color: #f43f5e; }
-.difficulty-btn.hard .btn-icon { 
-    color: #f43f5e; 
-    background-color: rgba(244, 63, 94, 0.1); 
-}
-
-/* 2. MÉDIO (Amarelo/Laranja) */
-.difficulty-btn.medium .btn-title { color: #eab308; }
-.difficulty-btn.medium .btn-icon { 
-    color: #eab308; 
-    background-color: rgba(234, 179, 8, 0.1); 
-}
-
-/* 3. BOM (Azul) */
-.difficulty-btn.good .btn-title { color: #3b82f6; }
-.difficulty-btn.good .btn-icon { 
-    color: #3b82f6; 
-    background-color: rgba(59, 130, 246, 0.1); 
-}
-
-/* 4. FÁCIL (Verde) */
-.difficulty-btn.easy .btn-title { color: #10b981; }
-.difficulty-btn.easy .btn-icon { 
-    color: #10b981; 
-    background-color: rgba(16, 185, 129, 0.1); 
-}
-
-/* ============================================================
-   BARRA LATERAL DIREITA (RESUMO & DICA)
-   ============================================================ */
-
-/* Alinhamento da coluna na direita */
-.right-sidebar {
-    width: 280px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 80px; /* Alinha horizontalmente com a sua barra da esquerda */
-    flex-shrink: 0;
-}
-
-/* Base dos painéis (Resumo e Dica) */
-.info-card {
-    background-color: #151f32; /* Fundo escuro idêntico ao painel inferior */
-    border: 1px solid rgba(255, 255, 255, 0.03);
-    border-radius: 20px;
-    padding: 25px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    margin-top: 50px;
-    margin-right: 50px;
-}
-
-/* Títulos das seções da direita */
-.sidebar-right-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #ffffff;
-    margin-bottom: 20px;
-}
-
-/* Remove estilos padrão da lista de estatísticas */
-.summary-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Cada linha de estatística (Ícone + Textos) */
-.summary-list li {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-/* Círculo base para os ícones */
-.stat-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.05rem;
-}
-
-/* Caixa contendo Número e Descrição alinhados verticalmente */
-.stat-texts {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-}
-
-.stat-number {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ffffff;
-}
-
-.stat-label {
-    font-size: 0.85rem;
-    color: #64748b; /* Cinza fosco para descrição secundária */
-}
-
-/* CORES DOS ÍCONES COM OPACIDADE (Baseado no Design da Imagem) */
-
-/* 1. Total de Cards (Roxo) */
-.cards-total {
-    color: #a855f7;
-    background-color: rgba(168, 85, 247, 0.12);
-}
-
-/* 2. Estudados Hoje (Azul) */
-.cards-studied {
-    color: #3b82f6;
-    background-color: rgba(59, 130, 246, 0.12);
-}
-
-/* 3. Acertos (Verde) */
-.cards-correct {
-    color: #10b981;
-    background-color: rgba(16, 185, 129, 0.12);
-}
-
-/* 4. Ofensiva / Fogo (Laranja) */
-.cards-streak {
-    color: #f97316;
-    background-color: rgba(249, 115, 22, 0.12);
-}
-
-/* ESTILIZAÇÃO DO BLOCO DE DICA */
-.tip-box .sidebar-right-title i {
-    color: #eab308; /* Lâmpada acesa em amarelo */
-    margin-right: 5px;
-}
-
-.tip-text {
-    font-size: 0.9rem;
-    color: #94a3b8;
-    line-height: 1.5;
-    /* Linha nova para suavizar a troca de mensagens por JS: */
-    transition: opacity 0.25s ease-in-out; 
 }
