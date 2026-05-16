@@ -67,6 +67,8 @@ const cardInner = document.getElementById("card-inner");
 const reviewBack = document.getElementById("review-back");
 const difficultyButtons = document.getElementById("difficulty-buttons");
 
+const progressStatus = document.getElementById("progress-status")
+
 
 // =========================
 // STATE
@@ -224,6 +226,33 @@ async function deleteCard(cardId) {
 
 }
 
+async function pickCard() {
+
+    const response = await apiFetch("http://localhost:8000/cards/pick_card");
+
+    const data = await response.json();
+
+    return data;
+}
+
+function updateProgress(totalCards, cardsToReview) {
+
+    if (totalCards === 0) {
+        atualizarProgresso(0);
+        return;
+    }
+    progressStatus.textContent = `${cardsToReview} / ${totalCards}`
+
+    console.log(progressStatus.textContent)
+
+    const studiedCards = totalCards - cardsToReview;
+
+    const porcentagem = (studiedCards / totalCards) * 100;
+
+    atualizarProgresso(porcentagem.toFixed(2));
+}
+
+
 async function fetchAndDisplayNextCard() {
     // 1. If a card is currently loaded, swipe it away first
     if (currentCard) {
@@ -234,16 +263,20 @@ async function fetchAndDisplayNextCard() {
 
     // 2. Fetch new backend data
     try {
-        const response = await apiFetch("http://localhost:8000/cards/pick_card");
-        const data = await response.json();
+        const data = await pickCard()
         const card = data.card;
+
+        const totalCards = data.total_cards;
+        const cardsToReview = data.cards_to_review;
 
         if (!card) {
             hideAllSections();
             emptyReviewSection.style.display = "block";
             currentCard = null;
+            updateProgress(totalCards, cardsToReview)
             return;
         }
+        
 
         // 3. Teleport our empty card frame onto the right side stage out of view
         flashcardItem.className = "flashcard-item prepare-right";
@@ -252,12 +285,12 @@ async function fetchAndDisplayNextCard() {
         // Force browser to register positioning layout change before updating visuals
         void flashcardItem.offsetWidth;
 
-        console.log(card.back_content)
-
         // 4. Paint the text updates
         currentCard = card;
         questionField.textContent = card.front_content;
         answerField.textContent = card.back_content;
+
+        updateProgress(totalCards, cardsToReview)
 
         // // Reset control interface button wrappers
         answerButton.style.display = 'block';
@@ -400,8 +433,6 @@ function hideAllSections() {
 
     isReviewSectionOpened = false;
 
-    
-
     resetSelectedCards();
 }
 
@@ -454,16 +485,26 @@ async function updateUserUI() {
         console.log("Element user-info does not exist.")
         return
     }
-
+    const userInfo = await getCardsInfo();
     const user = await getUserInfo()
 
     if (!user || !user.user_info || !user.user_info.name) {
+        console.log(user)
         console.log("User information wasn't loaded properly.")
         return
     }
 
     userInfoElement.textContent =
         user.user_info.name
+
+    atualizarResumo(userInfo.total_cards, userInfo.studied_today, userInfo.correct_today, userInfo.current_streak)
+
+    data = await pickCard()
+    const totalCards = data.total_cards;
+    const cardsToReview = data.cards_to_review;
+
+    updateProgress(totalCards, cardsToReview)
+
 }
 
 
@@ -720,12 +761,11 @@ document.querySelectorAll(".difficulty-btn").forEach(button => {
 
             // console.log(jsonResp);
 
-            fetchAndDisplayNextCard()
+            await fetchAndDisplayNextCard()
+            // await updateUserUI()
 
             // reviewBack.style.display = 'none';
             difficultyButtons.style.display = 'none';
-
-            
 
         } catch (err) {
 
@@ -737,7 +777,34 @@ document.querySelectorAll(".difficulty-btn").forEach(button => {
 // =========================
 // APP INITIALIZATION
 // =========================
+async function getCardsInfo() {
+    const userInfoURL = "http://localhost:8000/cards/me";
 
+    try {
+        const userInfo = await apiFetch(userInfoURL);
+
+        // Se o status não for 200, pula direto para o bloco catch lá embaixo
+        if (!userInfo.ok || userInfo.status !== 200) {
+            throw new Error(`Erro na API. Status HTTP: ${userInfo.status}`);
+        }
+
+        // Converte e retorna o objeto limpo vindo do Python
+        const responseJson = await userInfo.json();
+        return responseJson;
+
+    } catch (error) {
+        console.error("Falha crítica ao buscar informações do usuário:", error.message);
+        
+        // Em vez de retornar null, retornamos um objeto com valores zerados
+        // para garantir que seu painel da direita continue renderizando sem quebrar o HTML
+        return {
+            total_cards: 0,
+            studied_today: 0,
+            correct_today: 0,
+            current_streak: 0
+        };
+    }
+}
 
 window.addEventListener("DOMContentLoaded", async () => {
 
@@ -753,6 +820,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
 
     await updateUserUI()
-    atualizarProgresso(70)
 })
 

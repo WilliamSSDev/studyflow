@@ -40,7 +40,8 @@ class User(Base):
     deleted_at = Column(DateTime, nullable=True)
     current_streak = Column(Integer, default=0)
 
-    cards = relationship("Card", back_populates='user')
+    cards = relationship("Card", back_populates="user")
+    review_logs = relationship("ReviewLog", back_populates="user")
 
     def __init__(self, name, email, password, admin=False):
 
@@ -69,10 +70,30 @@ class Card(Base):
     user_id = Column(Integer, ForeignKey("usuarios.id"))
 
     user = relationship('User', back_populates='cards')
+    
+
+class ReviewLog(Base):
+
+    __tablename__ = "review_logs"
+
+    id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
+    reviewed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+
+    # What was the user's performance? (e.g., 'hard', 'medium', 'good', 'easy')
+    # You can use your SqlEnum(Difficulty) here if you consider "Hard" as incorrect, 
+    # or a string if you want to log exact button choices.
+    rating = Column(SqlEnum(Difficulty), nullable=False)
+
+    # Relationships
+    user_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    card_id = Column(Integer, ForeignKey("cards.id"), nullable=False)
+
+    user = relationship("User", back_populates="review_logs")
+    card = relationship("Card")
 
 if __name__ == '__main__':
 
-    # Base.metadata.drop_all(bind=db)
+    Base.metadata.drop_all(bind=db)
     Base.metadata.create_all(bind=db)
 
 
