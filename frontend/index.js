@@ -103,6 +103,66 @@ async function viewCards(amount) {
     return json_response;
 
 }
+// ============================================================
+// GERENCIADOR DO PAINEL LATERAL DIREITO (RESUMO & DICAS)
+// ============================================================
+
+/**
+ * Atualiza todas as estatísticas do painel de resumo de uma vez só.
+ * @param {number} total - O número total de cards no deck.
+ * @param {number} estudados - Quantos cards foram revisados hoje.
+ * @param {number} acertos - Quantas respostas foram marcadas como corretas/boas.
+ * @param {number} sequencia - Quantidade de dias seguidos estudando (streak).
+ */
+function atualizarResumo(total, estudados, acertos, sequencia) {
+    const elTotal = document.getElementById('stat-total-cards');
+    const elEstudados = document.getElementById('stat-studied-today');
+    const elAcertos = document.getElementById('stat-success-count');
+    const elSequencia = document.getElementById('stat-streak-days');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elEstudados) elEstudados.textContent = estudados;
+    if (elAcertos) elAcertos.textContent = acertos;
+    if (elSequencia) elSequencia.textContent = sequencia;
+}
+
+/**
+ * Altera o texto da caixa de dicas para motivar ou instruir o usuário.
+ * @param {string} novoTexto - A nova mensagem que será exibida.
+ */
+function alterarDica(novoTexto) {
+    const elDica = document.querySelector('.tip-box .tip-text');
+    
+    if (elDica) {
+        // Adiciona um efeito sutil de transição ao trocar o texto
+        elDica.style.opacity = 0;
+        
+        setTimeout(() => {
+            elDica.textContent = novoTexto;
+            elDica.style.opacity = 1;
+        }, 150);
+    }
+}
+
+/**
+ * Incrementa em +1 a quantidade de cards estudados hoje e gerencia os acertos.
+ * Útil para ser chamada logo após o usuário clicar em um botão de dificuldade.
+ * @param {boolean} foiAcerto - Passe 'true' se o usuário clicou em Bom/Fácil, ou 'false' se errou.
+ */
+function registrarRevisaoDoCard(foiAcerto) {
+    const elEstudados = document.getElementById('stat-studied-today');
+    const elAcertos = document.getElementById('stat-success-count');
+
+    if (elEstudados) {
+        let atualEstudados = parseInt(elEstudados.textContent) || 0;
+        elEstudados.textContent = atualEstudados + 1;
+    }
+
+    if (foiAcerto && elAcertos) {
+        let atualAcertos = parseInt(elAcertos.textContent) || 0;
+        elAcertos.textContent = atualAcertos + 1;
+    }
+}
 
 // =========================
 // API FUNCTIONS
@@ -687,3 +747,4 @@ window.addEventListener("DOMContentLoaded", async () => {
     await updateUserUI()
     atualizarProgresso(70)
 })
+
