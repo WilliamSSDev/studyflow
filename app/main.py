@@ -16,7 +16,6 @@ app.add_middleware(
 )
 
 
-
 app.include_router(auth_route)
 app.include_router(user_route)
 app.include_router(cards_route)

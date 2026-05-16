@@ -4,45 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Anki Clone</title>
-
-    <link rel="stylesheet" href="login_page.css">
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="index.css">
 </head>
-
 <body>
 
     <div class="dashboard">
 
         <!-- HEADER -->
         <header class="header">
-
-            <div class="logo">
-                <h2>StudyCards</h2>
-            </div>
+            <h1 class="logo">
+                Study<span>Cards</span>
+            </h1>
 
             <nav>
                 <ul>
                     <li>
-                        <a href="#">
-                            <i class="fa-solid fa-house"></i>
-                            Início
+                        <a href="#" class="hub">
+                            <i class="fa-solid fa-house"></i> Início
                         </a>
                     </li>
-
                     <li>
-                        <a href="#">
-                            <i class="fa-solid fa-layer-group"></i>
-                            Meus Decks
+                        <a href="#" class="hub">
+                            <i class="fa-solid fa-layer-group"></i> Meus Decks
                         </a>
                     </li>
-
                     <li>
-                        <a href="#">
-                            <i class="fa-solid fa-chart-line"></i>
-                            Estatísticas
+                        <a href="#" class="hub">
+                            <i class="fa-solid fa-chart-line"></i> Estatísticas
                         </a>
                     </li>
                 </ul>
@@ -55,171 +44,194 @@
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
-
         </header>
-            <!-- MAIN -->
-            <main class="content">
 
-                <h3 name="${card.id}" id="card-id"></h3>
+        <!-- MAIN LAYOUT WRAPPER -->
+        <main class="content">
 
-                <!-- SIDEBAR -->
-                <section class="cards-container">
-
-                    <div class="card" id="open-add-card">
-                        <i class="fa-solid fa-plus"></i>
-                        <h3 class="sidebar-texts">Adicionar Carta</h3>
-                    </div>
-
-                    <div class="card" id="review-cards">
-                        <i class="fa-solid fa-book-open"></i>
-                        <h3 class="sidebar-texts">Revisar Cartas</h3>
-                    </div>
-
-                    <div class="card">
-                        <i class="fa-solid fa-chart-simple"></i>
-                        <h3 class="sidebar-texts">Estatísticas</h3>
-                    </div>
-
-                    <div class="card" id="view-cards">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <h3 class="sidebar-texts">Ver cartas</h3>
-                    </div>
-
-                </section>
-
-                <!-- RIGHT SIDE -->
-                <div class="main-content">
-
-                    <!-- VIEW CARDS -->
-                    <section class="view-cards-window" id="view-cards-window">
-
-                        <h2 class="cartas-text">Cartas</h2>
-
-                        <table class="cards-table-class" id="cards-table">
-
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Frente</th>
-                                    <th>Verso</th>
-                                </tr>
-                            </thead>
-
-                            <tbody id="cards-table-body">
-                            </tbody>
-
-                        </table>
-
-                        <div class="actions-bar">
-                            <button class="remove-all-cards" id="remove-all-cards">
-                                Remover Selecionados 
-                            </button>
-                        </div>
-
-                    </section>
-
-                    <!-- REVIEW CARDS -->
-                    <section class="review-section" id="review-section">
-
-                        <div class="review-card-container">
-
-                            <div class="review-front">
-
-                                <h3 id="question-text-field">Pergunta</h3>
-
-                                <p id="review-front-content">
-                                    O que é Python?
-                                </p>
-
-                            </div>
-
-                            <div class="review-back" id="review-back">
-
-                                <h3>Resposta</h3>
-
-                                <p id="review-back-content">
-                                    Python é uma linguagem de programação.
-                                </p>
-
-                            </div>
-
-                            <div class="review-actions">
-
-                                <button id="show-answer-button">
-                                    Mostrar Resposta
-                                </button>
-
-                            </div>
-
-                            <div class="difficulty-buttons" id="difficulty-buttons">
-
-                                <button class="difficulty-btn" data-difficulty="easy">Easy</button>
-                                <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-                                <button class="difficulty-btn" data-difficulty="hard">Hard</button>
-
-                            </div>
-
-                        </div>
-
-                    </section>
-
-                    <!-- NO CARDS STATE -->
-                    <section class="empty-review-section" id="empty-review-section">
-
-                        <div class="empty-container">
-
-                            <h2>YOU ALREADY REVIEWED ALL CARDS</h2>
-
-                            <p>Come back later or add new cards to continue studying.</p>
-
-                        </div>
-
-                    </section>
-
-                    <!-- ADD CARD -->
-                    <section class="add-card-section" id="add-card-section">
-
-                        <h2>Adicionar Novo Cartão</h2>
-
-                        <form id="card-form">
-
-                            <label>Conteudo da frente</label>
-
-                            <textarea
-                                id="front-content"
-                                placeholder="Digite a pergunta"
-                                required></textarea>
-
-                            <label>Conteudo de trás</label>
-
-                            <textarea
-                                id="back-content"
-                                placeholder="Digite a resposta"
-                                required></textarea>
-
-                            <label>Deck</label>
-
-                            <input
-                                id="deck-name"
-                                type="text"
-                                placeholder="Nome do deck"
-                                required>
-
-                            <button type="submit" id="submit-button">
-                                Salvar Carta
-                            </button>
-
-                        </form>
-
-                    </section>
-
+            <!-- SIDEBAR -->
+            <section class="cards-container">
+                <div class="card" id="open-add-card">
+                    <i class="fa-solid fa-plus"></i>
+                    <h3 class="sidebar-texts">Adicionar Carta</h3>
                 </div>
 
-            </main>
+                <div class="card" id="review-cards">
+                    <i class="fa-solid fa-book-open"></i>
+                    <h3 class="sidebar-texts">Revisar Cartas</h3>
+                </div>
 
-    </div>
+                <div class="card">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <h3 class="sidebar-texts">Estatísticas</h3>
+                </div>
 
-<script src="index.js"></script>
+                <div class="card" id="view-cards">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <h3 class="sidebar-texts">Ver cartas</h3>
+                </div>
 
+                <div>
+                  
+                    <div class="progress-box">
+                        <h3>Progresso de Hoje</h3>
+                        
+                        <div class="circular-progress">
+                            <svg class="progress-svg" viewBox="0 0 120 120">
+                                <circle class="bg-circle" cx="60" cy="60" r="50"></circle>
+                                <circle class="fg-circle" cx="60" cy="60" r="50"></circle>
+                            </svg>
+                            
+                            <div class="progress-text">72%</div>
+                        </div>
+                        
+                        <p class="progress-status"><strong>18 / 25</strong> cards</p>
+                        <a href="#" class="progress-link">Continue assim! 🚀</a>
+                    </div>
+                    
+                </div>
+            </section>
+
+            <!-- RIGHT SIDE CONTENT AREA (Stays next to sidebar naturally) -->
+            <div class="main-content">
+                
+                <!-- Hidden helper fields for card data references -->
+                <h3 name="" id="card-id" style="display:none;"></h3>
+
+                <!-- VIEW CARDS MODULE -->
+                <section class="view-cards-window" id="view-cards-window">
+                    <h2 class="cartas-text">Cartas</h2>
+
+                    <table class="cards-table-class" id="cards-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Frente</th>
+                                <th>Verso</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cards-table-body">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+
+                    <div class="actions-bar">
+                        <button class="remove-all-cards" id="remove-all-cards">
+                            Remover Selecionados 
+                        </button>
+                    </div>
+                </section>
+
+                <!-- REVIEW CARDS MODULE (Carousel) -->
+                <section class="review-section" id="review-section">
+                    <div class="review-card-container">
+                        
+                        <!-- The Slide Deck -->
+                        <ul class="cards">
+                            <li id="flashcard-item" class="flashcard-item">
+                                <div class="review-card-inner" id="card-inner">
+                                    
+                                    <!-- Front Side -->
+                                    <div class="review-front" id="review-front">
+                                        <h3 id="question-text-field" class="question-text-field">Pergunta</h3>
+                                        <p id="review-front-content">O que é Python?</p>
+                                    </div>
+
+                                    <!-- Back Side -->
+                                    <div class="review-back" id="review-back">
+                                        <h3 class="answer-text-field">Resposta</h3>
+                                        <p id="review-back-content">Python é uma linguagem de programação.</p>
+                                    </div>
+                                    
+                                </div>
+                            </li>
+                        </ul>
+
+                        <!-- Control Interface Buttons -->
+                        <div class="review-actions">
+                            <button type="button" class="show-answer-button" id="show-answer-button">
+                                <i class="fa-solid fa-eye"></i> Mostrar Resposta
+                            </button>
+                        </div>
+
+                        <div class="difficulty-buttons" id="difficulty-buttons">
+    
+                            <button type="button" class="difficulty-btn hard" data-difficulty="hard">
+                                <div class="btn-icon">
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                </div>
+                                <div class="btn-texts">
+                                    <span class="btn-title">Difícil</span>
+                                    <span class="btn-desc">Não lembrei</span>
+                                </div>
+                            </button>
+
+                            <button type="button" class="difficulty-btn medium" data-difficulty="medium">
+                                <div class="btn-icon">
+                                    <i class="fa-solid fa-circle-minus"></i>
+                                </div>
+                                <div class="btn-texts">
+                                    <span class="btn-title">Médio</span>
+                                    <span class="btn-desc">Lembrei com esforço</span>
+                                </div>
+                            </button>
+
+                            <button type="button" class="difficulty-btn good" data-difficulty="good">
+                                <div class="btn-icon">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="btn-texts">
+                                    <span class="btn-title">Bom</span>
+                                    <span class="btn-desc">Lembrei bem</span>
+                                </div>
+                            </button>
+
+                            <button type="button" class="difficulty-btn easy" data-difficulty="easy">
+                                <div class="btn-icon">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                </div>
+                                <div class="btn-texts">
+                                    <span class="btn-title">Fácil</span>
+                                    <span class="btn-desc">Muito fácil</span>
+                                </div>
+                            </button>
+
+                    </div>
+
+                    </div>
+                </section>
+
+                <!-- NO CARDS STATE MODULE -->
+                <section class="empty-review-section" id="empty-review-section">
+                    <div class="empty-container">
+                        <h2>YOU ALREADY REVIEWED ALL CARDS</h2>
+                        <p>Come back later or add new cards to continue studying.</p>
+                    </div>
+                </section>
+
+                <!-- ADD CARD MODULE -->
+                <section class="add-card-section" id="add-card-section">
+                    <h2>Adicionar Novo Cartão</h2>
+                    <form id="card-form">
+                        <label>Conteudo da frente</label>
+                        <textarea id="front-content" placeholder="Digite a pergunta" required></textarea>
+
+                        <label>Conteudo de trás</label>
+                        <textarea id="back-content" placeholder="Digite a resposta" required></textarea>
+
+                        <label>Deck</label>
+                        <input id="deck-name" type="text" placeholder="Nome do deck" required>
+
+                        <button type="submit" id="submit-button">Salvar Carta</button>
+                    </form>
+                </section>
+
+            </div> <!-- /main-content -->
+
+        </main>
+
+    </div> <!-- /dashboard -->
+
+    <script src="index.js"></script>
 </body>
 </html>

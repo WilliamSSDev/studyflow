@@ -58,6 +58,14 @@ const mediumButton = document.getElementById("medium-button")
 const hardButton = document.getElementById("hard-button")
 
 
+// Grab our newly structured elements
+const flashcardItem = document.getElementById("flashcard-item");
+const cardInner = document.getElementById("card-inner");
+
+const reviewBack = document.getElementById("review-back");
+const difficultyButtons = document.getElementById("difficulty-buttons");
+
+
 // =========================
 // STATE
 // =========================
@@ -68,6 +76,7 @@ let isRemoveButtonVisible = false
 let isReviewSectionOpened = false;
 let currentCard = null
 let selectedCardsToRemove = []
+let allCards = []
 
 
 
@@ -152,6 +161,52 @@ async function deleteCard(cardId) {
 
 }
 
+async function fetchAndDisplayNextCard() {
+    // 1. If a card is currently loaded, swipe it away first
+    if (currentCard) {
+        flashcardItem.classList.add("swipe-left");
+        // Wait 400 milliseconds for the CSS slide out animation to finish
+        await new Promise(resolve => setTimeout(resolve, 400));
+    }
+
+
+    // 2. Fetch new backend data
+    try {
+        const response = await apiFetch("http://localhost:8000/cards/pick_card");
+        const data = await response.json();
+        const card = data.card;
+
+        if (!card) {
+            hideAllSections();
+            emptyReviewSection.style.display = "block";
+            currentCard = null;
+            return;
+        }
+
+        // 3. Teleport our empty card frame onto the right side stage out of view
+        flashcardItem.className = "prepare-right"; 
+        cardInner.classList.remove("is-flipped"); // Reset face rotation angle
+
+        // Force browser to register positioning layout change before updating visuals
+        void flashcardItem.offsetWidth;
+
+        // 4. Paint the text updates
+        currentCard = card;
+        questionField.textContent = card.front_content;
+        answerField.textContent = card.back_content;
+
+        // Reset control interface button wrappers
+        // difficultyButtonsContainer.style.display = 'none';
+        answerButton.style.display = 'block';
+
+        // 5. Release card to glide smoothly back center stage
+        flashcardItem.className = ""; 
+
+    } catch (error) {
+        console.error("Failed executing deck cycle step:", error);
+    }
+}
+
 async function reviewCard(){
     const pickCardUrl = "http://localhost:8000/cards/pick_card";
     const response = await apiFetch(pickCardUrl)
@@ -203,7 +258,22 @@ async function addCard(frontContent, backContent) {
 // UI FUNCTIONS
 // =========================
 
-function toggleReviewSection(cards) {
+function atualizarProgresso(porcentagem) {
+    const fgCircle = document.querySelector('.fg-circle');
+    const textDisplay = document.querySelector('.progress-text');
+    
+    const circunferenciaTotal = 314;
+    // Descobre quanto vai sobrar subtraindo a fração da porcentagem
+    const offset = circunferenciaTotal - (circunferenciaTotal * (porcentagem / 100));
+    
+    // Aplica no estilo e atualiza o texto interno
+    fgCircle.style.strokeDashoffset = offset;
+    textDisplay.textContent = `${porcentagem}%`;
+}
+
+// Exemplo de uso: atualizarProgresso(72);
+
+async function toggleReviewSection(cards) {
 
     const shouldOpen =
         !isReviewSectionOpened;
@@ -216,6 +286,14 @@ function toggleReviewSection(cards) {
             console.log("empty review section is been displayed.")
             emptyReviewSection.style.display = "flex"
         } else {
+            const response = await apiFetch("http://localhost:8000/cards/cards/999");
+
+            const jsonResp = await response.json();
+
+            allCards = jsonResp.cards;
+
+            console.log(allCards)
+
             console.log("review section is been displayed.")
             reviewSection.style.display = "flex";
         }
@@ -293,7 +371,7 @@ function toggleAddCardSection() {
     }
 }
 
-function toggleViewCardsSection() {
+async function toggleViewCardsSection() {
 
     const shouldOpen = !isViewCardWindowOpened;
 
@@ -363,12 +441,15 @@ async function authenticateUser() {
 // =========================
 
 answerButton.addEventListener("click", () => {
+    
 
-    const answerField = document.getElementById("review-back");
-    const difficultyButtons = document.getElementById("difficulty-buttons");
-
-    answerField.style.display = 'flex';
-    difficultyButtons.style.display = 'flex';
+    if (reviewBack.style.display != 'flex'){
+        reviewBack.style.display = 'flex';
+        difficultyButtons.style.display = 'flex';
+    } else {
+        reviewBack.style.display = 'none';
+        difficultyButtons.style.display = 'none';
+    }
 
 });
 
@@ -403,8 +484,8 @@ removeCards.addEventListener("click", async () => {
     }
 
     selectedCardsToRemove = [];
-
     toggleRemoveCardsButton();
+    location.reload();
 
 });
 submitButton.addEventListener("click", async (event) => {
@@ -456,6 +537,8 @@ viewCardsButton.addEventListener("click", async () => {
     const cards = await viewCards(9999)
 
     if (!cards.cards){
+        console.log("No cards to show")
+        tableBody.innerHTML = "";
         return
     }
 
@@ -541,22 +624,47 @@ viewCardsButton.addEventListener("click", async () => {
 })
 
 document.querySelectorAll(".difficulty-btn").forEach(button => {
+
     button.addEventListener("click", async (event) => {
 
-        const difficulty = event.target.dataset.difficulty;
-        const cardID = currentCard.id;
+        // event.preventDefault();
+        console.log("clicked");
 
-        const updateCardUrl =
-            `http://localhost:8000/cards/update_card?difficulty=${difficulty}&card_id=${cardID}`;
+        try {
 
-        const response = await apiFetch(updateCardUrl, {
-            method: "POST"
-        });
+            const difficulty = event.target.dataset.difficulty;
 
-        const jsonResp = await response.json();
+            console.log(difficulty);
 
-        console.log(jsonResp.message);
+            const cardID = currentCard.id;
+
+            const updateCardUrl =
+                `http://localhost:8000/cards/update_card?difficulty=${difficulty}&card_id=${cardID}`;
+
+           
+            
+            const response = await apiFetch(updateCardUrl, {
+                method: "POST",
+                redirect: "manual"
+            });
+
+            const jsonResp = await response.json();
+
+            console.log(jsonResp);
+
+            fetchAndDisplayNextCard()
+
+            reviewBack.style.display = 'none';
+            difficultyButtons.style.display = 'none';
+
+            
+
+        } catch (err) {
+
+            console.error("ERROR:", err);
+        }
     });
+
 });
 // =========================
 // APP INITIALIZATION
@@ -577,4 +685,5 @@ window.addEventListener("DOMContentLoaded", async () => {
     }
 
     await updateUserUI()
+    atualizarProgresso(70)
 })

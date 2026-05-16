@@ -24,6 +24,7 @@ body {
     height: calc(100vh - 80px); /* adjust based on header height */
 }
 
+
 .card {
     width: 400px;
     padding: 30px;

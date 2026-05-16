@@ -6,7 +6,7 @@ from enum import Enum
 
 from datetime import timedelta, datetime
 
-db = create_engine("sqlite:///banco.db")
+db = create_engine("postgresql://postgres:1234@localhost:5432/flashcards")
 
 Base = declarative_base()
 

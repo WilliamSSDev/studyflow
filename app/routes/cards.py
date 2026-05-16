@@ -74,10 +74,10 @@ def update_card(difficulty: Difficulty, card_id: int, usuario: User = Depends(ve
     card = session.query(CardM).filter_by(id=card_id).first()
 
     if not card:
-        return HTTPException(404, detail='Card was not found')
+        raise HTTPException(404, detail='Card was not found')
     
     elif card.user_id != usuario.id:
-        return HTTPException(401, detail="Not authorized")
+        raise HTTPException(401, detail="Not authorized")
         # return {"message": 'Not allowed to do such operation.'}
     
     next_review = get_next_review(difficulty)
