@@ -16,6 +16,7 @@ const reviewSection =
 const reviewCardsButton =
     document.getElementById("review-cards");
 
+// Salvar carta
 const submitButton =
     document.getElementById("submit-button")
 
@@ -45,6 +46,7 @@ const viewCardsWindow = document.getElementById("view-cards-window");
 
 const removeCards = document.getElementById("remove-all-cards")
 
+// Botao de mostrar resposta 
 const answerButton = document.getElementById("show-answer-button")
 
 const emptyReviewSection = 
@@ -74,9 +76,10 @@ let isCardWindowOpened = false
 let isViewCardWindowOpened = false
 let isRemoveButtonVisible = false
 let isReviewSectionOpened = false;
-let currentCard = null
-let selectedCardsToRemove = []
-let allCards = []
+
+var selectedCardsToRemove = []
+var currentCard = null
+var allCards = []
 
 
 
@@ -229,7 +232,6 @@ async function fetchAndDisplayNextCard() {
         await new Promise(resolve => setTimeout(resolve, 400));
     }
 
-
     // 2. Fetch new backend data
     try {
         const response = await apiFetch("http://localhost:8000/cards/pick_card");
@@ -244,23 +246,24 @@ async function fetchAndDisplayNextCard() {
         }
 
         // 3. Teleport our empty card frame onto the right side stage out of view
-        flashcardItem.className = "prepare-right"; 
+        flashcardItem.className = "flashcard-item prepare-right";
         cardInner.classList.remove("is-flipped"); // Reset face rotation angle
 
         // Force browser to register positioning layout change before updating visuals
         void flashcardItem.offsetWidth;
+
+        console.log(card.back_content)
 
         // 4. Paint the text updates
         currentCard = card;
         questionField.textContent = card.front_content;
         answerField.textContent = card.back_content;
 
-        // Reset control interface button wrappers
-        // difficultyButtonsContainer.style.display = 'none';
+        // // Reset control interface button wrappers
         answerButton.style.display = 'block';
 
-        // 5. Release card to glide smoothly back center stage
-        flashcardItem.className = ""; 
+        // // 5. Release card to glide smoothly back center stage
+        flashcardItem.className = "flashcard-item";
 
     } catch (error) {
         console.error("Failed executing deck cycle step:", error);
@@ -278,8 +281,6 @@ async function reviewCard(){
     if (!card){
         return null
     }
-
-    console.log("FRONT CONTENT: ", card.front_content);
 
     currentCard = card
 
@@ -351,11 +352,12 @@ async function toggleReviewSection(cards) {
             const jsonResp = await response.json();
 
             allCards = jsonResp.cards;
+            reviewSection.style.display = "flex";
 
-            console.log(allCards)
+            
+            
 
             console.log("review section is been displayed.")
-            reviewSection.style.display = "flex";
         }
         isReviewSectionOpened = true;
         
@@ -500,23 +502,28 @@ async function authenticateUser() {
 // EVENT LISTENERS
 // =========================
 
-answerButton.addEventListener("click", () => {
-    
+var isFlipped = false;
 
-    if (reviewBack.style.display != 'flex'){
-        reviewBack.style.display = 'flex';
+answerButton.addEventListener('click', () => {
+    // Adiciona a classe que gira a carta em 180 graus no espaço 3D
+
+    if (!isFlipped){
+        cardInner.classList.add('is-flipped'); 
+        isFlipped = true;
         difficultyButtons.style.display = 'flex';
     } else {
-        reviewBack.style.display = 'none';
+        cardInner.classList.remove('is-flipped');
+        isFlipped = false;
         difficultyButtons.style.display = 'none';
     }
-
+    
+    console.log("Mostrar resposta has been clicked.")
 });
 
 reviewCardsButton.addEventListener("click", async() => {
 
     const hasCards = await reviewCard()
-    toggleReviewSection(hasCards);
+    await toggleReviewSection(hasCards);
     
 });
 
@@ -550,7 +557,7 @@ removeCards.addEventListener("click", async () => {
 });
 submitButton.addEventListener("click", async (event) => {
 
-    event.preventDefault();
+    // event.preventDefault();
 
     const frontContent =
         frontContentInput.value.trim()
@@ -561,14 +568,12 @@ submitButton.addEventListener("click", async (event) => {
     const deckName =
         deckNameInput.value.trim()
 
-    if (!frontContent || !backContent) {
+    if (!frontContent || !backContent || !deckName) {
 
         console.log("Fields are empty.")
 
         return
     }
-
-    console.log("Adding card...")
 
     const result =
         await addCard(frontContent, backContent)
@@ -579,6 +584,10 @@ submitButton.addEventListener("click", async (event) => {
 
     frontContentInput.value = ""
     backContentInput.value = ""
+
+    console.log("Adding card...")
+
+    location.reload();
 })
 
 
@@ -688,11 +697,10 @@ document.querySelectorAll(".difficulty-btn").forEach(button => {
     button.addEventListener("click", async (event) => {
 
         // event.preventDefault();
-        console.log("clicked");
 
         try {
 
-            const difficulty = event.target.dataset.difficulty;
+            const difficulty = event.currentTarget.dataset.difficulty;
 
             console.log(difficulty);
 
@@ -710,11 +718,11 @@ document.querySelectorAll(".difficulty-btn").forEach(button => {
 
             const jsonResp = await response.json();
 
-            console.log(jsonResp);
+            // console.log(jsonResp);
 
             fetchAndDisplayNextCard()
 
-            reviewBack.style.display = 'none';
+            // reviewBack.style.display = 'none';
             difficultyButtons.style.display = 'none';
 
             
