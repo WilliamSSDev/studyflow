@@ -1,4 +1,4 @@
-# Novo CRUD
+# Study cards
 
 Aplicação de flashcards com FastAPI e frontend estático.
 
