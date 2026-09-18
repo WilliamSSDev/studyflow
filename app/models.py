@@ -3,10 +3,15 @@ from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy import DateTime, Enum as SqlEnum
 from datetime import datetime, timezone
 from enum import Enum
-
+import os
 from datetime import timedelta, datetime
+from dotenv import load_dotenv
 
-db = create_engine("postgresql://postgres:1234@localhost:5432/flashcards")
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+db = create_engine(DATABASE_URL)
 
 Base = declarative_base()
 
@@ -14,6 +19,7 @@ class Difficulty(str, Enum):
     EASY = "easy"
     MEDIUM = "medium"
     HARD = "hard"
+    GOOD = "good"
 
 def get_next_review(difficulty: Difficulty):
 
@@ -25,8 +31,11 @@ def get_next_review(difficulty: Difficulty):
     elif difficulty == Difficulty.MEDIUM:
         return now + timedelta(seconds=10)
 
+    elif difficulty == Difficulty.GOOD:
+        return now + timedelta(days=1)
+
     elif difficulty == Difficulty.HARD:
-        return now
+            return now
 
 class User(Base):
 
@@ -41,6 +50,7 @@ class User(Base):
     current_streak = Column(Integer, default=0)
 
     cards = relationship("Card", back_populates="user")
+    decks = relationship("Deck", back_populates="user", cascade="all, delete-orphan")
     review_logs = relationship("ReviewLog", back_populates="user")
 
     def __init__(self, name, email, password, admin=False):
@@ -68,8 +78,24 @@ class Card(Base):
     review_count = Column("review_count", Integer, default=0)
 
     user_id = Column(Integer, ForeignKey("usuarios.id"))
+    deck_id = Column(Integer, ForeignKey("decks.id", ondelete="SET NULL"), nullable=True)
 
     user = relationship('User', back_populates='cards')
+    deck = relationship("Deck", back_populates="cards")
+
+
+class Deck(Base):
+
+    __tablename__ = "decks"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    user_id = Column(Integer, ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False)
+
+    user = relationship("User", back_populates="decks")
+    cards = relationship("Card", back_populates="deck")
     
 
 class ReviewLog(Base):
@@ -78,10 +104,6 @@ class ReviewLog(Base):
 
     id = Column(Integer, nullable=False, autoincrement=True, primary_key=True)
     reviewed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-
-    # What was the user's performance? (e.g., 'hard', 'medium', 'good', 'easy')
-    # You can use your SqlEnum(Difficulty) here if you consider "Hard" as incorrect, 
-    # or a string if you want to log exact button choices.
     rating = Column(SqlEnum(Difficulty), nullable=False)
 
     # Relationships

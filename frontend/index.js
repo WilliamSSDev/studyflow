@@ -1,3 +1,19 @@
+import {
+    addCard,
+    apiFetch,
+    deleteCard,
+    getCardsInfo,
+    getUserInfo,
+    logout,
+    pickCard,
+    refreshToken,
+    updateCardDifficulty,
+    verifyAuthentication,
+    viewCards,
+    API_BASE_URL
+} from "./api.js"
+import { createCharts } from "./charts.js"
+
 // =========================
 // DOM ELEMENTS
 // =========================
@@ -16,9 +32,9 @@ const reviewSection =
 const reviewCardsButton =
     document.getElementById("review-cards");
 
+
 // Salvar carta
-const submitButton =
-    document.getElementById("submit-button")
+const submitButton = document.getElementById("submit-button")
 
 const addCardSection =
     document.getElementById("add-card-section")
@@ -32,42 +48,28 @@ const backContentInput =
 const deckNameInput =
     document.getElementById("deck-name")
 
-const viewCardsElement =
-    document.getElementById("view-cards")
+const tableBody = document.getElementById("cards-table-body")
 
-const tableBody =
-    document.getElementById("cards-table-body");
+const questionField = document.getElementById("review-front-content")
 
-const questionField = document.getElementById('review-front-content');
+const answerField = document.getElementById("review-back-content")
 
-const answerField = document.getElementById('review-back-content');
-
-const viewCardsWindow = document.getElementById("view-cards-window");
+const viewCardsWindow = document.getElementById("view-cards-window")
 
 const removeCards = document.getElementById("remove-all-cards")
 
-// Botao de mostrar resposta 
 const answerButton = document.getElementById("show-answer-button")
 
-const emptyReviewSection = 
-        document.getElementById("empty-review-section");
+const emptyReviewSection = document.getElementById("empty-review-section")
 
-const logoutButton = document.getElementById("logout-button");
-
-// Difficulty buttons
-const easyButton = document.getElementById("easy-button")
-const mediumButton = document.getElementById("medium-button")
-const hardButton = document.getElementById("hard-button")
-
-
-// Grab our newly structured elements
-const flashcardItem = document.getElementById("flashcard-item");
-const cardInner = document.getElementById("card-inner");
-
-const reviewBack = document.getElementById("review-back");
-const difficultyButtons = document.getElementById("difficulty-buttons");
+const logoutButton = document.getElementById("logout-button")
+const flashcardItem = document.getElementById("flashcard-item")
+const cardInner = document.getElementById("card-inner")
+const difficultyButtons = document.getElementById("difficulty-buttons")
 
 const progressStatus = document.getElementById("progress-status")
+const statisticsButton = document.getElementById("statistics")
+const statisticsSection = document.getElementById("statistics-section")
 
 
 // =========================
@@ -76,49 +78,10 @@ const progressStatus = document.getElementById("progress-status")
 
 let isCardWindowOpened = false
 let isViewCardWindowOpened = false
-let isRemoveButtonVisible = false
-let isReviewSectionOpened = false;
+let isReviewSectionOpened = false
+let selectedCardsToRemove = []
+let currentCard = null
 
-var selectedCardsToRemove = []
-var currentCard = null
-var allCards = []
-
-
-
-// =========================
-// API HELPER
-// =========================
-
-async function apiFetch(url, options = {}) {
-
-    const response = await fetch(url, {
-        credentials: "include",
-        ...options
-    })
-
-    return response
-}
-
-async function viewCards(amount) {
-    const viewCardsUrl = `http://localhost:8000/cards/cards/${amount}`;
-    const cards = await apiFetch(viewCardsUrl);
-
-    const json_response = await cards.json();
-
-    return json_response;
-
-}
-// ============================================================
-// GERENCIADOR DO PAINEL LATERAL DIREITO (RESUMO & DICAS)
-// ============================================================
-
-/**
- * Atualiza todas as estatísticas do painel de resumo de uma vez só.
- * @param {number} total - O número total de cards no deck.
- * @param {number} estudados - Quantos cards foram revisados hoje.
- * @param {number} acertos - Quantas respostas foram marcadas como corretas/boas.
- * @param {number} sequencia - Quantidade de dias seguidos estudando (streak).
- */
 function atualizarResumo(total, estudados, acertos, sequencia) {
     const elTotal = document.getElementById('stat-total-cards');
     const elEstudados = document.getElementById('stat-studied-today');
@@ -131,124 +94,35 @@ function atualizarResumo(total, estudados, acertos, sequencia) {
     if (elSequencia) elSequencia.textContent = sequencia;
 }
 
-/**
- * Altera o texto da caixa de dicas para motivar ou instruir o usuário.
- * @param {string} novoTexto - A nova mensagem que será exibida.
- */
-function alterarDica(novoTexto) {
-    const elDica = document.querySelector('.tip-box .tip-text');
-    
-    if (elDica) {
-        // Adiciona um efeito sutil de transição ao trocar o texto
-        elDica.style.opacity = 0;
-        
-        setTimeout(() => {
-            elDica.textContent = novoTexto;
-            elDica.style.opacity = 1;
-        }, 150);
-    }
-}
+async function loadReviewCard() {
+    const { card } = await pickCard()
 
-/**
- * Incrementa em +1 a quantidade de cards estudados hoje e gerencia os acertos.
- * Útil para ser chamada logo após o usuário clicar em um botão de dificuldade.
- * @param {boolean} foiAcerto - Passe 'true' se o usuário clicou em Bom/Fácil, ou 'false' se errou.
- */
-function registrarRevisaoDoCard(foiAcerto) {
-    const elEstudados = document.getElementById('stat-studied-today');
-    const elAcertos = document.getElementById('stat-success-count');
-
-    if (elEstudados) {
-        let atualEstudados = parseInt(elEstudados.textContent) || 0;
-        elEstudados.textContent = atualEstudados + 1;
+    if (!card) {
+        return null
     }
 
-    if (foiAcerto && elAcertos) {
-        let atualAcertos = parseInt(elAcertos.textContent) || 0;
-        elAcertos.textContent = atualAcertos + 1;
-    }
+    currentCard = card
+    questionField.textContent = card.front_content
+    answerField.textContent = card.back_content
+
+    return card
 }
 
-// =========================
-// API FUNCTIONS
-// =========================
+function updateProgress(userInfo, cardsToReview) {
 
-// Return user info such as name, id, email, admin, current_streak...
-async function getUserInfo() {
-
-    const response =
-        await apiFetch("http://localhost:8000/user/me")
-
-    const info = await response.json()
-
-    console.log(info)
-
-    return info
-}
-
-// Call it when access_token gets expired.
-async function refreshToken() {
-
-    const response = await apiFetch(
-        "http://localhost:8000/auth/refresh",
-        {
-            method: "POST"
-        }
-    )
-
-    const result = await response.json()
-
-    return result
-}
-
-
-async function verifyAuthentication() {
-
-    const response = await apiFetch(
-        "http://localhost:8000/auth/protected",
-        {
-            method: "POST"
-        }
-    )
-
-    const authInfo = await response.json()
-
-    return authInfo.authenticated
-}
-
-async function deleteCard(cardId) {
-    const deleteCardsUrl = `http://localhost:8000/cards/delete_card/${cardId}`;
-    const response = await apiFetch(deleteCardsUrl, {method: "DELETE"});
-
-    const jsonResponse = await response.json();
-
-    return jsonResponse;
-
-}
-
-async function pickCard() {
-
-    const response = await apiFetch("http://localhost:8000/cards/pick_card");
-
-    const data = await response.json();
-
-    return data;
-}
-
-function updateProgress(totalCards, cardsToReview) {
-
-    if (totalCards === 0) {
+    if (!userInfo || userInfo.total_cards === 0) {
         atualizarProgresso(0);
+        progressStatus.textContent = `0 / 0`;
         return;
     }
-    progressStatus.textContent = `${cardsToReview} / ${totalCards}`
 
-    console.log(progressStatus.textContent)
+    const studiedCards = userInfo.studied_today;
 
-    const studiedCards = totalCards - cardsToReview;
+    const porcentagem = (studiedCards / cardsToReview) * 100;
 
-    const porcentagem = (studiedCards / totalCards) * 100;
+    progressStatus.textContent = `${studiedCards} / ${cardsToReview}`;
 
+    console.log("Cartas estudadas hoje:", studiedCards);
     atualizarProgresso(porcentagem.toFixed(2));
 }
 
@@ -269,14 +143,18 @@ async function fetchAndDisplayNextCard() {
         const totalCards = data.total_cards;
         const cardsToReview = data.cards_to_review;
 
+        const userInfo = await getCardsInfo();
+
+        await atualizarResumo(userInfo.total_cards, userInfo.studied_today, userInfo.correct_today, userInfo.current_streak)
+
         if (!card) {
             hideAllSections();
             emptyReviewSection.style.display = "block";
             currentCard = null;
-            updateProgress(totalCards, cardsToReview)
+            updateProgress(userInfo, cardsToReview)
             return;
         }
-        
+
 
         // 3. Teleport our empty card frame onto the right side stage out of view
         flashcardItem.className = "flashcard-item prepare-right";
@@ -290,7 +168,7 @@ async function fetchAndDisplayNextCard() {
         questionField.textContent = card.front_content;
         answerField.textContent = card.back_content;
 
-        updateProgress(totalCards, cardsToReview)
+        updateProgress(userInfo, cardsToReview)
 
         // // Reset control interface button wrappers
         answerButton.style.display = 'block';
@@ -303,51 +181,6 @@ async function fetchAndDisplayNextCard() {
     }
 }
 
-async function reviewCard(){
-    const pickCardUrl = "http://localhost:8000/cards/pick_card";
-    const response = await apiFetch(pickCardUrl)
-
-    const jsonResponse = await response.json();
-    const card = jsonResponse.card;
-
-
-    if (!card){
-        return null
-    }
-
-    currentCard = card
-
-    questionField.textContent = card.front_content;
-    answerField.textContent = card.back_content;
-
-    return card
-}
-
-async function addCard(frontContent, backContent) {
-
-    const response = await apiFetch(
-        "http://localhost:8000/cards/add_card",
-        {
-            method: "POST",
-
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify({
-                front_content: frontContent,
-                back_content: backContent
-            })
-        }
-    )
-
-    const result = await response.json()
-
-    console.log(result)
-
-    return result
-}
-
 // =========================
 // UI FUNCTIONS
 // =========================
@@ -355,11 +188,11 @@ async function addCard(frontContent, backContent) {
 function atualizarProgresso(porcentagem) {
     const fgCircle = document.querySelector('.fg-circle');
     const textDisplay = document.querySelector('.progress-text');
-    
+
     const circunferenciaTotal = 314;
     // Descobre quanto vai sobrar subtraindo a fração da porcentagem
     const offset = circunferenciaTotal - (circunferenciaTotal * (porcentagem / 100));
-    
+
     // Aplica no estilo e atualiza o texto interno
     fgCircle.style.strokeDashoffset = offset;
     textDisplay.textContent = `${porcentagem}%`;
@@ -377,23 +210,15 @@ async function toggleReviewSection(cards) {
     if (shouldOpen) {
 
         if (!cards){
-            console.log("empty review section is been displayed.")
+            console.log("Empty review section is been displayed.")
             emptyReviewSection.style.display = "flex"
         } else {
-            const response = await apiFetch("http://localhost:8000/cards/cards/999");
-
-            const jsonResp = await response.json();
-
-            allCards = jsonResp.cards;
             reviewSection.style.display = "flex";
-
-            
-            
 
             console.log("review section is been displayed.")
         }
         isReviewSectionOpened = true;
-        
+
 
     } else {
 
@@ -426,6 +251,8 @@ function hideAllSections() {
     reviewSection.style.display = "none";
 
     emptyReviewSection.style.display = "none"
+
+    statisticsSection.style.display = "none"
 
     isCardWindowOpened = false;
 
@@ -499,11 +326,11 @@ async function updateUserUI() {
 
     atualizarResumo(userInfo.total_cards, userInfo.studied_today, userInfo.correct_today, userInfo.current_streak)
 
-    data = await pickCard()
+    const data = await pickCard()
     const totalCards = data.total_cards;
     const cardsToReview = data.cards_to_review;
 
-    updateProgress(totalCards, cardsToReview)
+    updateProgress(userInfo, cardsToReview)
 
 }
 
@@ -543,37 +370,72 @@ async function authenticateUser() {
 // EVENT LISTENERS
 // =========================
 
-var isFlipped = false;
+let isFlipped = false
+const { reviewChart } = createCharts()
 
-answerButton.addEventListener('click', () => {
+
+statisticsButton.addEventListener('click', async () => {
+
+    console.log("Statistics button clicked");
+
+    const isVisible =
+        statisticsSection.style.display === 'flex';
+
+        const data = await apiFetch(`${API_BASE_URL}/cards/reviews_period?days_period=30`);
+
+        const jsonData = await data.json();
+
+        let array = [];
+
+        Object.values(jsonData).forEach(value => {
+            array.push(value);
+            console.log(value)
+        })
+
+        console.log(array)
+
+        reviewChart.data.datasets[0].data = array;
+        reviewChart.update();
+
+    hideAllSections();
+
+    if (!isVisible) {
+        statisticsSection.style.display = 'flex';
+    }
+
+});
+
+
+
+answerButton.addEventListener('click', async () => {
     // Adiciona a classe que gira a carta em 180 graus no espaço 3D
 
     if (!isFlipped){
-        cardInner.classList.add('is-flipped'); 
+        cardInner.classList.add('is-flipped');
         isFlipped = true;
         difficultyButtons.style.display = 'flex';
+
     } else {
         cardInner.classList.remove('is-flipped');
         isFlipped = false;
         difficultyButtons.style.display = 'none';
     }
-    
+
     console.log("Mostrar resposta has been clicked.")
 });
 
 reviewCardsButton.addEventListener("click", async() => {
 
-    const hasCards = await reviewCard()
+    // showToast("Iniciando sessão de estudo...")
+
+    const hasCards = await loadReviewCard()
     await toggleReviewSection(hasCards);
-    
+
 });
 
 logoutButton.addEventListener("click", async () => {
 
-    await fetch("http://localhost:8000/auth/logout", {
-        method: "POST",
-        credentials: "include"
-    });
+    await logout()
 
     window.location.href = "login_page.html";
 });
@@ -598,7 +460,7 @@ removeCards.addEventListener("click", async () => {
 });
 submitButton.addEventListener("click", async (event) => {
 
-    // event.preventDefault();
+    event.preventDefault();
 
     const frontContent =
         frontContentInput.value.trim()
@@ -636,9 +498,13 @@ viewCardsButton.addEventListener("click", async () => {
 
     console.log("View cards clicked.")
 
+    // showToast("Carregando cartas...", "info")
+
     // await toggleRemoveCardsButton();
 
     const isViewWindowOpened = await toggleViewCardsSection();
+
+    await viewCards();
 
     if (!isViewCardWindowOpened){
         return
@@ -697,7 +563,7 @@ viewCardsButton.addEventListener("click", async () => {
         <td><h3 class="card-id">${card.id}</h3></td>
         <td>${card.front_content}</td>
         <td>${card.back_content}</td>
-        <td> 
+        <td>
             <button type="button" class="delete-button">
                 🗑️
             </button>
@@ -730,7 +596,7 @@ viewCardsButton.addEventListener("click", async () => {
 
 
     });
-    
+
 })
 
 document.querySelectorAll(".difficulty-btn").forEach(button => {
@@ -747,24 +613,12 @@ document.querySelectorAll(".difficulty-btn").forEach(button => {
 
             const cardID = currentCard.id;
 
-            const updateCardUrl =
-                `http://localhost:8000/cards/update_card?difficulty=${difficulty}&card_id=${cardID}`;
-
-           
-            
-            const response = await apiFetch(updateCardUrl, {
-                method: "POST",
-                redirect: "manual"
-            });
-
-            const jsonResp = await response.json();
-
-            // console.log(jsonResp);
+            await updateCardDifficulty(cardID, difficulty)
 
             await fetchAndDisplayNextCard()
+
             // await updateUserUI()
 
-            // reviewBack.style.display = 'none';
             difficultyButtons.style.display = 'none';
 
         } catch (err) {
@@ -777,35 +631,6 @@ document.querySelectorAll(".difficulty-btn").forEach(button => {
 // =========================
 // APP INITIALIZATION
 // =========================
-async function getCardsInfo() {
-    const userInfoURL = "http://localhost:8000/cards/me";
-
-    try {
-        const userInfo = await apiFetch(userInfoURL);
-
-        // Se o status não for 200, pula direto para o bloco catch lá embaixo
-        if (!userInfo.ok || userInfo.status !== 200) {
-            throw new Error(`Erro na API. Status HTTP: ${userInfo.status}`);
-        }
-
-        // Converte e retorna o objeto limpo vindo do Python
-        const responseJson = await userInfo.json();
-        return responseJson;
-
-    } catch (error) {
-        console.error("Falha crítica ao buscar informações do usuário:", error.message);
-        
-        // Em vez de retornar null, retornamos um objeto com valores zerados
-        // para garantir que seu painel da direita continue renderizando sem quebrar o HTML
-        return {
-            total_cards: 0,
-            studied_today: 0,
-            correct_today: 0,
-            current_streak: 0
-        };
-    }
-}
-
 window.addEventListener("DOMContentLoaded", async () => {
 
     console.log("Site has been loaded.")
@@ -821,4 +646,3 @@ window.addEventListener("DOMContentLoaded", async () => {
 
     await updateUserUI()
 })
-
