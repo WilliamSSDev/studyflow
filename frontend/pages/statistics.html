@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow | Estatísticas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/statistics.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="assets/js/statistics.js" defer></script>
+</head>
+<body>
+    <div class="page-shell">
+        <section class="statistics-window" id="statistics-window">
+            <header class="window-header">
+                <h1>Estatísticas</h1>
+                <p class="window-subtitle">Acompanhe seu progresso nos últimos sete dias.</p>
+            </header>
+
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <span class="label">Cards estudados</span>
+                    <span class="value">28</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">Acertos</span>
+                    <span class="value">18</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">Sequência</span>
+                    <span class="value">6 dias</span>
+                </div>
+                <div class="stat-card">
+                    <span class="label">Média diária</span>
+                    <span class="value">4</span>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-panel">
+                    <h3>Progresso semanal</h3>
+                    <div class="chart-wrap">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-panel">
+                    <h3>Distribuição</h3>
+                    <div class="chart-wrap">
+                        <canvas id="difficultyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

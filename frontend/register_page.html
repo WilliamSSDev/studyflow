@@ -1,253 +1,42 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - StudyCards</title>
-
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <style>
-
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        body{
-            background-color: #0f172a;
-            height: 100vh;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .register-container{
-            background-color: #1e293b;
-
-            width: 400px;
-
-            padding: 40px;
-
-            border-radius: 20px;
-
-            box-shadow: 0px 0px 20px rgba(0,0,0,0.3);
-        }
-
-        .register-container h1{
-            color: white;
-
-            text-align: center;
-
-            margin-bottom: 30px;
-        }
-
-        .input-group{
-            display: flex;
-            flex-direction: column;
-
-            margin-bottom: 20px;
-        }
-
-        .input-group label{
-            color: #cbd5e1;
-
-            margin-bottom: 8px;
-        }
-
-        .input-group input{
-            padding: 14px;
-
-            border: none;
-
-            border-radius: 10px;
-
-            background-color: #334155;
-
-            color: white;
-
-            outline: none;
-        }
-
-        .input-group input::placeholder{
-            color: #94a3b8;
-        }
-
-        .register-button{
-            width: 100%;
-
-            padding: 14px;
-
-            border: none;
-
-            border-radius: 10px;
-
-            background-color: #3b82f6;
-
-            color: white;
-
-            font-size: 16px;
-
-            cursor: pointer;
-
-            transition: 0.3s;
-        }
-
-        .register-button:hover{
-            opacity: 0.8;
-        }
-
-        .error-message{
-            color: #ef4444;
-
-            margin-top: 15px;
-
-            text-align: center;
-        }
-
-        .login-link{
-            margin-top: 15px;
-            text-align: center;
-            color: #cbd5e1;
-        }
-
-        .login-link a{
-            color: #60a5fa;
-            text-decoration: none;
-        }
-
-    </style>
-
+    <title>Criar conta | StudyFlow</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="auth.css">
 </head>
-
 <body>
-
-    <div class="register-container">
-
-        <h1>
-            <i class="fa-solid fa-user-plus"></i>
-            StudyCards
-        </h1>
-
-        <form id="register-form">
-
-            <div class="input-group">
-
-                <label>Nome</label>
-
-                <input
-                type="text"
-                id="username"
-                placeholder="Digite seu nome"
-                required>
-
-            </div>
-
-            <div class="input-group">
-
-                <label>Email</label>
-
-                <input
-                type="email"
-                id="email"
-                placeholder="Digite seu email"
-                required>
-
-            </div>
-
-            <div class="input-group">
-
-                <label>Senha</label>
-
-                <input
-                type="password"
-                id="password"
-                placeholder="Digite sua senha"
-                required>
-
-            </div>
-
-            <div class="input-group">
-
-                <label>Confirmar Senha</label>
-
-                <input
-                type="password"
-                id="confirm-password"
-                placeholder="Confirme sua senha"
-                required>
-
-            </div>
-
-            <button type="submit" class="register-button">
-                Criar Conta
-            </button>
-
-            <p class="login-link">
-                Já tem conta?
-                <a href="login_page.html"><strong>Entrar</strong></a>
-            </p>
-
-            <p class="error-message" id="error-message"></p>
-
-        </form>
-
-    </div>
-
-<script>
-
-    const registerForm = document.getElementById("register-form");
-
-    registerForm.addEventListener("submit", async function(event) {
-
-        event.preventDefault();
-
-        const name = document.getElementById("username").value;
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        const confirmPassword = document.getElementById("confirm-password").value;
-
-        const errorMessage = document.getElementById("error-message");
-
-        if (password !== confirmPassword) {
-            errorMessage.innerText = "As senhas não coincidem";
-            return;
-        }
-
-        const response = await fetch(
-            "http://localhost:8000/auth/register",
-            {
-                method: "POST",
-
-                headers: {
-                    "Content-Type": "application/json"
-                },
-
-                body: JSON.stringify({
-                    name,
-                    email,
-                    password
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        if (response.ok) {
-            window.location.href = "login_page.html";
-        } else {
-            console.log(data.detail)
-            errorMessage.innerText =
-                data.detail || data.detail[0].msg || "Erro ao criar conta";
-        }
-
-    });
-
-</script>
-
+    <main class="auth-shell">
+        <section class="auth-brand" aria-label="StudyFlow">
+            <a class="auth-logo" href="index.html">Study<span>Flow</span></a>
+            <p>Transforme pequenos momentos de estudo em progresso que permanece.</p>
+            <div class="auth-art"><span class="auth-art-icon">✦</span><span>Organize o conhecimento.<br>Construa consistência.</span></div>
+        </section>
+        <section class="auth-card">
+            <button class="auth-theme" id="theme-toggle" type="button" aria-label="Alternar tema">&#9681;</button>
+            <span class="auth-kicker">Comece hoje</span>
+            <h1>Crie seu espaço de estudo</h1>
+            <p class="auth-subtitle">Seus decks e revisões em um só lugar.</p>
+            <form id="register-form" novalidate>
+                <label for="username">Nome</label>
+                <input type="text" id="username" autocomplete="name" placeholder="Como podemos te chamar?" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" autocomplete="email" placeholder="voce@exemplo.com" required>
+                <label for="password">Senha</label>
+                <input type="password" id="password" autocomplete="new-password" placeholder="Pelo menos 6 caracteres" required>
+                <label for="confirm-password">Confirmar senha</label>
+                <input type="password" id="confirm-password" autocomplete="new-password" placeholder="Digite novamente" required>
+                <p class="auth-error" id="error-message" role="alert"></p>
+                <button class="auth-submit" id="register-submit" type="submit">Criar minha conta</button>
+            </form>
+            <p class="auth-switch">Já tem uma conta? <a href="login_page.html">Entrar</a></p>
+        </section>
+    </main>
+    <script type="module" src="auth.js"></script>
 </body>
 </html>

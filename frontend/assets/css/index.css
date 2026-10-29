@@ -1,0 +1,1179 @@
+/* ============================================================
+   1. GLOBAL STYLES & RESET
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0e172b;
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+.statistics-section{
+    width: 100%;
+    height: 500px;
+    gap: 30px;
+    display: flex;
+}
+.review-chart{
+    width: 100%;
+    background: rgba(20, 20, 35, 0);
+
+    border: 1px solid rgba(123,97,255,0.3);
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 0 20px rgba(123,97,255,0.25),
+        inset 0 0 20px rgba(255,255,255,0.02);
+
+    backdrop-filter: blur(20px);
+
+    padding: 24px;
+}
+.difficulty-distribution{
+    width: 70%;
+    background-color: #10b981;
+}
+.statistics-bottom{
+    display: flex;
+}
+
+/* ============================================================
+   2. ANIMATIONS
+   ============================================================ */
+@keyframes contentAppear {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes sidebarAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes headerAppear {
+    from {
+        opacity: 0;
+        transform: translateY(-15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-in {
+    animation: contentAppear 0.4s ease forwards;
+}
+
+/* ============================================================
+   3. LAYOUT & HEADER (Garante consistência do topo fixo)
+   ============================================================ */
+.dashboard {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background-color: #0e172b;
+    border-bottom: 1px solid #334155;
+    animation: headerAppear 0.4s ease;
+}
+
+
+.logo span {
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+.logout-button {
+    background-color: transparent;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #64748b;
+    transition: 0.2s ease;
+}
+
+.logout-button:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+nav ul {
+    display: flex;
+    gap: 30px;
+    list-style: none;
+}
+
+nav a {
+    text-decoration: none;
+    color: white;
+    transition: 0.2s;
+}
+
+nav a:hover {
+    color: #60a5fa;
+}
+
+/* ============================================================
+   4. DISTRIBUIÇÃO DAS 3 COLUNAS (O Coração do Layout)
+   ============================================================ */
+.content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 120px 40px 40px 40px; /* Compensa a altura do header fixo igualmente para todos */
+    gap: 30px;
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* COLUNA 1: BARRA ESQUERDA (Menu de Decks) */
+.cards-container {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex-shrink: 0;
+    animation: sidebarAppear 0.4s ease;
+}
+
+.hub {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.card {
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.card i {
+    font-size: 1.8rem;
+    color: #6366f1;
+}
+
+.sidebar-texts {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+}
+
+.card:hover {
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.card.active {
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateX(4px);
+}
+
+.card.active i,
+.card.active h3 {
+    color: #ffffff !important;
+}
+
+/* COLUNA 2: ÁREA CENTRAL DINÂMICA (Miolo principal) */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 0; /* Evita que tabelas ou conteúdos estourem o flex-box */
+}
+
+/* Regra base para os módulos do sistema central */
+.review-section, 
+.view-cards-window, 
+.add-card-section {
+    width: 100%;
+    max-width: 850px;
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 24px;
+    padding: 35px;
+    display: none; /* Controlado nativamente por JS */
+    animation: contentAppear 0.5s ease-out forwards;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+/* Modificadores estéticos do ambiente de revisão */
+.review-section {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+/* ============================================================
+   5. FLASHCARD CAROUSEL & 3D FLIP SYSTEM
+   ============================================================ */
+.review-card-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.cards {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    perspective: 1200px;
+}
+
+.flashcard-item {
+    width: 100%;
+    height: 380px;
+    position: relative;
+    background: transparent;
+}
+
+/* Sistema de cartas falsas de profundidade empilhadas atrás */
+.flashcard-item::before,
+.flashcard-item::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100%;
+    border-radius: 24px;
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.flashcard-item::before {
+    z-index: -1;
+    opacity: 0.40;
+    transform: translateY(12px) scaleX(0.95);
+}
+
+.flashcard-item::after {
+    z-index: -2;
+    opacity: 0.15;
+    transform: translateY(24px) scaleX(0.90);
+}
+
+/* Mecanismo 3D real */
+.review-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.review-card-inner.is-flipped {
+    transform: rotateY(180deg);
+}
+
+.review-front, .review-back {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 24px;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.review-back {
+    transform: rotateY(180deg); /* Correção da rotação do verso */
+}
+
+/* Badges estilizados de Pergunta/Resposta */
+.question-text-field, .answer-text-field {
+    display: inline-block;
+    padding: 6px 16px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: linear-gradient(#1e293b, #1e293b) padding-box,
+                linear-gradient(90deg, #8329de, #3050bb) border-box;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.review-back h3 {
+    color: #ffffff;
+    font-weight: normal;
+    font-size: 22px;
+}
+.flashcard-item {
+    width: 100%;
+    height: 380px;
+    position: relative;
+    background: transparent;
+
+    transition:
+        transform 0.4s ease,
+        opacity 0.4s ease;
+}
+
+.cards li.swipe-left {
+    transform: translateX(-150%) rotate(-10deg);
+    opacity: 0;
+}
+
+.cards li.prepare-right {
+    transition: none !important;
+    transform: translateX(150%);
+    opacity: 0;
+}
+
+/* ============================================================
+   6. CONTROLES E HUD DE DIFICULDADE (Alinhados com a carta)
+   ============================================================ */
+.review-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.show-answer-button {
+    background: linear-gradient(90deg, #8329de, #3050bb);
+    font-weight: 600;
+    padding: 14px 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(131, 41, 222, 0.3);
+}
+
+.show-answer-button:hover {
+    background: linear-gradient(90deg, #9333ea, #2563eb);
+    transform: translateY(-2px);
+}
+
+.difficulty-buttons {
+    display: none; /* Ativado via JS para flex */
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 16px 24px;
+    width: 100%;
+}
+
+.difficulty-btn {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 12px;
+    text-align: left;
+    flex: 1;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.difficulty-btn:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.difficulty-btn:active {
+    transform: scale(0.96);
+}
+
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.btn-texts {
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.btn-desc {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+/* Cores específicas do HUD */
+.difficulty-btn.hard .btn-title { color: #f43f5e; }
+.difficulty-btn.hard .btn-icon { color: #f43f5e; background-color: rgba(244, 63, 94, 0.1); }
+
+.difficulty-btn.medium .btn-title { color: #eab308; }
+.difficulty-btn.medium .btn-icon { color: #eab308; background-color: rgba(234, 179, 8, 0.1); }
+
+.difficulty-btn.good .btn-title { color: #3b82f6; }
+.difficulty-btn.good .btn-icon { color: #3b82f6; background-color: rgba(59, 130, 246, 0.1); }
+
+.difficulty-btn.easy .btn-title { color: #10b981; }
+.difficulty-btn.easy .btn-icon { color: #10b981; background-color: rgba(16, 185, 129, 0.1); }
+
+/* ============================================================
+   7. VIEW CARDS (Configurações Limpas da Tabela)
+   ============================================================ */
+.view-cards-window h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.cards-table-class {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.cards-table-class th {
+    text-align: left;
+    padding: 14px;
+    border-bottom: 2px solid #334155;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.cards-table-class td {
+    padding: 14px;
+    border-bottom: 1px solid #1e293b;
+    max-width: 250px;
+    word-break: break-word;
+    color: #e2e8f0;
+}
+
+.cards-table-class tr:hover {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.actions-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+/* ============================================================
+   8. FORMS & INPUTS (Módulo de adicionar cartas)
+   ============================================================ */
+.add-card-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+}
+
+form label {
+    font-size: 0.9rem;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-bottom: -10px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    background-color: #0e172b;
+    color: white;
+    resize: none;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+textarea {
+    min-height: 120px;
+}
+
+button {
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background-color: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+button:hover {
+    background-color: #3b82f6;
+}
+
+/* ============================================================
+   9. COLUNA 3: BARRA LATERAL DIREITA (Resumo & Dicas)
+   ============================================================ */
+.right-sidebar {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.info-card {
+    background-color: #151f32;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-right-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 20px;
+}
+
+.summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.summary-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.stat-texts {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-number {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Configurações de cores dos badges de progresso */
+.cards-total { color: #a855f7; background-color: rgba(168, 85, 247, 0.12); }
+.cards-studied { color: #3b82f6; background-color: rgba(59, 130, 246, 0.12); }
+.cards-correct { color: #10b981; background-color: rgba(16, 185, 129, 0.12); }
+.cards-streak { color: #f97316; background-color: rgba(249, 115, 22, 0.12); }
+
+.tip-box .sidebar-right-title i {
+    color: #eab308;
+    margin-right: 6px;
+}
+
+.tip-text {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    transition: opacity 0.25s ease-in-out;
+}
+
+/* ============================================================
+   10. ESTADOS VAZIOS (Telas de aviso)
+   ============================================================ */
+.empty-review-section {
+    display: none;
+    background-color: #151f32;
+    padding: 50px 30px;
+    border-radius: 24px;
+    text-align: center;
+    width: 100%;
+    max-width: 850px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.empty-container h2 {
+    font-size: 1.6rem;
+    color: #60a5fa;
+    margin-bottom: 12px;
+}
+
+.empty-container p {
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+/* Container do card lateral de progresso */
+.progress-box {
+    background-color: #1e293b; /* Mesma cor dos seus outros cards */
+    border-radius: 20px;
+    padding: 24px;
+    width: 250px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.progress-box h3 {
+    font-size: 1rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Caixa wrapper para empilhar o texto e o SVG */
+.circular-progress {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.progress-svg {
+    width: 100%;
+    height: 100%;
+    /* Gira o SVG em -90 graus para que o progresso comece no topo (12 horas) e não na direita */
+    transform: rotate(-90deg); 
+}
+
+/* Configuração base para as duas linhas circulares */
+.bg-circle, .fg-circle {
+    fill: none; /* Deixa o meio transparente */
+    stroke-width: 10; /* Grossura da linha */
+    stroke-linecap: round; /* Deixa as pontas da linha arredondadas */
+}
+
+/* Linha de fundo escura */
+.bg-circle {
+    stroke: #1e2538; /* Um roxo/azul bem escuro simulando o fundo apagado */
+}
+
+/* Linha ativa que representa a porcentagem */
+.fg-circle {
+    stroke: #8329de; /* O roxo vibrante da sua identidade */
+    stroke-dasharray: 314; /* Comprimento total da circunferência */
+    
+    /* VALOR QUE DIZ A PORCENTAGEM: 
+       Para 72% ocultamos 88px (314 - (314 * 0.72)) */
+    stroke-dashoffset: 88; 
+    
+    /* Transição suave caso você mude o valor depois pelo JS */
+    transition: stroke-dashoffset 0.5s ease-in-out; 
+}
+
+/* Centralizando o texto de porcentagem bem no meio do círculo */
+.progress-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+}
+
+/* Estilizações extras dos textos inferiores */
+.progress-status {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+.progress-status strong {
+    color: white;
+}
+
+.progress-link {
+    color: #6366f1;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s;
+}
+.progress-link:hover {
+    color: #818cf8;
+}
+
+/* ============================================================
+   11. DASHBOARD VISUAL REFRESH
+   ============================================================ */
+:root {
+    --ink: #101820;
+    --ink-soft: #17232b;
+    --panel: rgba(24, 38, 45, 0.88);
+    --panel-light: #20323a;
+    --line: rgba(218, 234, 226, 0.12);
+    --text: #f4f6ef;
+    --muted: #9eada5;
+    --mint: #a6e3c4;
+    --coral: #ff8b70;
+    --gold: #f7c66b;
+    --blue: #8fc4e8;
+}
+
+body {
+    background:
+        linear-gradient(135deg, rgba(166, 227, 196, 0.05), transparent 35%),
+        linear-gradient(315deg, rgba(255, 139, 112, 0.05), transparent 42%),
+        var(--ink);
+    color: var(--text);
+    font-family: "DM Sans", sans-serif;
+}
+
+h1, h2, h3, h4, .logo, button {
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.header {
+    padding: 18px clamp(20px, 4vw, 64px);
+    background: rgba(16, 24, 32, 0.9);
+    border-bottom: 1px solid var(--line);
+    backdrop-filter: blur(18px);
+}
+
+.logo {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    letter-spacing: 0;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+nav ul {
+    gap: 8px;
+}
+
+.header nav {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    justify-content: center;
+}
+
+nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 13px;
+    border-radius: 10px;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+nav a:hover {
+    color: var(--text);
+    background: rgba(166, 227, 196, 0.08);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+.user-profile > i {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: var(--ink);
+    background: var(--mint);
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr) 260px;
+    max-width: 1720px;
+    padding: 116px clamp(20px, 4vw, 64px) 48px;
+    gap: clamp(20px, 3vw, 42px);
+}
+
+.cards-container {
+    width: 250px;
+    gap: 10px;
+}
+
+.card {
+    min-height: 68px;
+    padding: 16px 18px;
+    background: rgba(23, 35, 43, 0.72);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.card i {
+    color: var(--mint);
+    font-size: 1.25rem;
+}
+
+.card h3 {
+    font-size: 0.96rem;
+}
+
+.card:hover,
+.card.active {
+    background: var(--panel-light);
+    border-color: rgba(166, 227, 196, 0.55);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.16);
+}
+
+.main-content {
+    align-items: stretch;
+    min-width: 0;
+}
+
+.review-section,
+.view-cards-window,
+.add-card-section,
+.empty-review-section {
+    max-width: 960px;
+    border-color: var(--line);
+    border-radius: 16px;
+    background: var(--panel);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.review-section {
+    background: transparent;
+    box-shadow: none;
+}
+
+.flashcard-item {
+    height: min(430px, 52vh);
+    min-height: 320px;
+}
+
+.flashcard-item::before,
+.flashcard-item::after {
+    background: linear-gradient(135deg, #245b5c, #1d3f4d);
+    border-radius: 16px;
+}
+
+.review-front,
+.review-back {
+    padding: clamp(24px, 5vw, 64px);
+    border-radius: 16px;
+    background:
+        linear-gradient(135deg, rgba(166, 227, 196, 0.13), transparent 44%),
+        linear-gradient(135deg, #23484c, #1b3440);
+    box-shadow: 0 24px 45px rgba(0, 0, 0, 0.25);
+}
+
+.review-back {
+    background:
+        linear-gradient(135deg, rgba(255, 139, 112, 0.14), transparent 44%),
+        linear-gradient(135deg, #533b3b, #263c45);
+}
+
+.review-front p,
+.review-back p {
+    max-width: 720px;
+    color: var(--text);
+    font-size: clamp(1.35rem, 2.5vw, 2.25rem);
+    line-height: 1.2;
+}
+
+.question-text-field,
+.answer-text-field {
+    padding: 7px 13px;
+    border: 1px solid rgba(244, 246, 239, 0.3);
+    background: rgba(16, 24, 32, 0.35);
+    color: var(--mint);
+    font-size: 0.76rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.show-answer-button {
+    padding: 13px 22px;
+    border-radius: 10px;
+    color: var(--ink);
+    background: var(--mint);
+    box-shadow: none;
+}
+
+.show-answer-button:hover {
+    background: #c4efd8;
+    transform: translateY(-2px);
+}
+
+.difficulty-buttons {
+    gap: 6px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(23, 35, 43, 0.8);
+    border-color: var(--line);
+}
+
+.difficulty-btn {
+    padding: 11px 10px;
+}
+
+.btn-desc,
+.stat-label,
+.tip-text,
+.progress-box h3 {
+    color: var(--muted);
+}
+
+.view-cards-window h2,
+.add-card-section h2 {
+    font-size: 1.55rem;
+    color: var(--mint);
+}
+
+.cards-table-class th {
+    color: var(--mint);
+    border-bottom-color: var(--line);
+}
+
+.cards-table-class td {
+    border-bottom-color: var(--line);
+}
+
+input,
+textarea {
+    border-color: var(--line);
+    border-radius: 10px;
+    background: rgba(16, 24, 32, 0.72);
+}
+
+input:focus,
+textarea:focus {
+    border-color: var(--mint);
+    box-shadow: 0 0 0 3px rgba(166, 227, 196, 0.1);
+}
+
+button {
+    border-radius: 10px;
+}
+
+.right-sidebar {
+    width: 260px;
+    min-width: 0;
+}
+
+.statistics-section {
+    min-width: 0;
+}
+
+.review-chart,
+.difficulty-chart {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.review-chart {
+    flex: 1 1 auto;
+}
+
+.difficulty-chart {
+    flex: 0 1 320px;
+    min-height: 320px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+}
+
+.info-card,
+.progress-box {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: var(--panel);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.16);
+}
+
+.progress-box {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.fg-circle {
+    stroke: var(--mint);
+}
+
+.progress-link {
+    color: var(--mint);
+}
+
+.empty-container h2 {
+    color: var(--mint);
+}
+
+@media (max-width: 1120px) {
+    .header {
+        gap: 16px;
+    }
+
+    .header nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+    }
+
+    .content {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .main-content {
+        order: 3;
+        flex-basis: 100%;
+    }
+
+    .right-sidebar {
+        flex: 1;
+        width: auto;
+    }
+}
+
+@media (max-width: 720px) {
+    .header {
+        position: static;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .header nav {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    nav ul {
+        width: max-content;
+    }
+
+    .content {
+        padding: 24px 16px 36px;
+    }
+
+    .cards-container,
+    .right-sidebar {
+        width: 100%;
+    }
+
+    .cards-container {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .progress-box {
+        grid-column: 1 / -1;
+    }
+
+    .review-section,
+    .view-cards-window,
+    .add-card-section,
+    .empty-review-section {
+        padding: 20px;
+    }
+
+    .difficulty-buttons {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .difficulty-btn {
+        min-width: 0;
+    }
+
+    .btn-desc {
+        white-space: normal;
+    }
+
+    .statistics-section {
+        height: auto;
+        flex-direction: column;
+    }
+
+    .review-chart,
+    .difficulty-chart {
+        min-height: 280px;
+    }
+}

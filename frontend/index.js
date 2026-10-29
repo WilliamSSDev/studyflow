@@ -1,824 +1,648 @@
-// =========================
-// DOM ELEMENTS
-// =========================
+// import {
+//     addCard,
+//     apiFetch,
+//     deleteCard,
+//     getCardsInfo,
+//     getUserInfo,
+//     logout,
+//     pickCard,
+//     refreshToken,
+//     updateCardDifficulty,
+//     verifyAuthentication,
+//     viewCards,
+//     API_BASE_URL
+// } from "./api.js"
+// import { createCharts } from "./charts.js"
 
-const userInfoElement = document.getElementById("user-info")
+// // =========================
+// // DOM ELEMENTS
+// // =========================
 
-const viewCardsButton =
-    document.getElementById("view-cards")
+// const userInfoElement = document.getElementById("user-info")
 
-const addCardButton =
-    document.getElementById("open-add-card")
+// const viewCardsButton =
+//     document.getElementById("view-cards")
 
-const reviewSection =
-    document.getElementById("review-section");
+// const addCardButton =
+//     document.getElementById("open-add-card")
 
-const reviewCardsButton =
-    document.getElementById("review-cards");
+// const reviewSection =
+//     document.getElementById("review-section");
 
-// Salvar carta
-const submitButton =
-    document.getElementById("submit-button")
+// const reviewCardsButton =
+//     document.getElementById("review-cards");
 
-const addCardSection =
-    document.getElementById("add-card-section")
 
-const frontContentInput =
-    document.getElementById("front-content")
+// // Salvar carta
+// const submitButton = document.getElementById("submit-button")
 
-const backContentInput =
-    document.getElementById("back-content")
+// const addCardSection =
+//     document.getElementById("add-card-section")
 
-const deckNameInput =
-    document.getElementById("deck-name")
+// const frontContentInput =
+//     document.getElementById("front-content")
 
-const viewCardsElement =
-    document.getElementById("view-cards")
+// const backContentInput =
+//     document.getElementById("back-content")
 
-const tableBody =
-    document.getElementById("cards-table-body");
+// const deckNameInput =
+//     document.getElementById("deck-name")
 
-const questionField = document.getElementById('review-front-content');
+// const tableBody = document.getElementById("cards-table-body")
 
-const answerField = document.getElementById('review-back-content');
+// const questionField = document.getElementById("review-front-content")
 
-const viewCardsWindow = document.getElementById("view-cards-window");
+// const answerField = document.getElementById("review-back-content")
 
-const removeCards = document.getElementById("remove-all-cards")
+// const viewCardsWindow = document.getElementById("view-cards-window")
 
-// Botao de mostrar resposta 
-const answerButton = document.getElementById("show-answer-button")
+// const removeCards = document.getElementById("remove-all-cards")
 
-const emptyReviewSection = 
-        document.getElementById("empty-review-section");
+// const answerButton = document.getElementById("show-answer-button")
 
-const logoutButton = document.getElementById("logout-button");
+// const emptyReviewSection = document.getElementById("empty-review-section")
 
-// Difficulty buttons
-const easyButton = document.getElementById("easy-button")
-const mediumButton = document.getElementById("medium-button")
-const hardButton = document.getElementById("hard-button")
+// const logoutButton = document.getElementById("logout-button")
+// const flashcardItem = document.getElementById("flashcard-item")
+// const cardInner = document.getElementById("card-inner")
+// const difficultyButtons = document.getElementById("difficulty-buttons")
 
+// const progressStatus = document.getElementById("progress-status")
+// const statisticsButton = document.getElementById("statistics")
+// const statisticsSection = document.getElementById("statistics-section")
 
-// Grab our newly structured elements
-const flashcardItem = document.getElementById("flashcard-item");
-const cardInner = document.getElementById("card-inner");
 
-const reviewBack = document.getElementById("review-back");
-const difficultyButtons = document.getElementById("difficulty-buttons");
+// // =========================
+// // STATE
+// // =========================
 
-const progressStatus = document.getElementById("progress-status")
+// let isCardWindowOpened = false
+// let isViewCardWindowOpened = false
+// let isReviewSectionOpened = false
+// let selectedCardsToRemove = []
+// let currentCard = null
 
+// function atualizarResumo(total, estudados, acertos, sequencia) {
+//     const elTotal = document.getElementById('stat-total-cards');
+//     const elEstudados = document.getElementById('stat-studied-today');
+//     const elAcertos = document.getElementById('stat-success-count');
+//     const elSequencia = document.getElementById('stat-streak-days');
 
-// =========================
-// STATE
-// =========================
+//     if (elTotal) elTotal.textContent = total;
+//     if (elEstudados) elEstudados.textContent = estudados;
+//     if (elAcertos) elAcertos.textContent = acertos;
+//     if (elSequencia) elSequencia.textContent = sequencia;
+// }
 
-let isCardWindowOpened = false
-let isViewCardWindowOpened = false
-let isRemoveButtonVisible = false
-let isReviewSectionOpened = false;
+// async function loadReviewCard() {
+//     const { card } = await pickCard()
 
-var selectedCardsToRemove = []
-var currentCard = null
-var allCards = []
+//     if (!card) {
+//         return null
+//     }
 
+//     currentCard = card
+//     questionField.textContent = card.front_content
+//     answerField.textContent = card.back_content
 
+//     return card
+// }
 
-// =========================
-// API HELPER
-// =========================
+// function updateProgress(userInfo, cardsToReview) {
 
-async function apiFetch(url, options = {}) {
+//     if (!userInfo || userInfo.total_cards === 0) {
+//         atualizarProgresso(0);
+//         progressStatus.textContent = `0 / 0`;
+//         return;
+//     }
 
-    const response = await fetch(url, {
-        credentials: "include",
-        ...options
-    })
+//     const studiedCards = userInfo.studied_today;
 
-    return response
-}
+//     const porcentagem = (studiedCards / cardsToReview) * 100;
 
-async function viewCards(amount) {
-    const viewCardsUrl = `http://localhost:8000/cards/cards/${amount}`;
-    const cards = await apiFetch(viewCardsUrl);
-
-    const json_response = await cards.json();
-
-    return json_response;
-
-}
-// ============================================================
-// GERENCIADOR DO PAINEL LATERAL DIREITO (RESUMO & DICAS)
-// ============================================================
-
-/**
- * Atualiza todas as estatísticas do painel de resumo de uma vez só.
- * @param {number} total - O número total de cards no deck.
- * @param {number} estudados - Quantos cards foram revisados hoje.
- * @param {number} acertos - Quantas respostas foram marcadas como corretas/boas.
- * @param {number} sequencia - Quantidade de dias seguidos estudando (streak).
- */
-function atualizarResumo(total, estudados, acertos, sequencia) {
-    const elTotal = document.getElementById('stat-total-cards');
-    const elEstudados = document.getElementById('stat-studied-today');
-    const elAcertos = document.getElementById('stat-success-count');
-    const elSequencia = document.getElementById('stat-streak-days');
-
-    if (elTotal) elTotal.textContent = total;
-    if (elEstudados) elEstudados.textContent = estudados;
-    if (elAcertos) elAcertos.textContent = acertos;
-    if (elSequencia) elSequencia.textContent = sequencia;
-}
-
-/**
- * Altera o texto da caixa de dicas para motivar ou instruir o usuário.
- * @param {string} novoTexto - A nova mensagem que será exibida.
- */
-function alterarDica(novoTexto) {
-    const elDica = document.querySelector('.tip-box .tip-text');
-    
-    if (elDica) {
-        // Adiciona um efeito sutil de transição ao trocar o texto
-        elDica.style.opacity = 0;
-        
-        setTimeout(() => {
-            elDica.textContent = novoTexto;
-            elDica.style.opacity = 1;
-        }, 150);
-    }
-}
+//     progressStatus.textContent = `${studiedCards} / ${cardsToReview}`;
 
-/**
- * Incrementa em +1 a quantidade de cards estudados hoje e gerencia os acertos.
- * Útil para ser chamada logo após o usuário clicar em um botão de dificuldade.
- * @param {boolean} foiAcerto - Passe 'true' se o usuário clicou em Bom/Fácil, ou 'false' se errou.
- */
-function registrarRevisaoDoCard(foiAcerto) {
-    const elEstudados = document.getElementById('stat-studied-today');
-    const elAcertos = document.getElementById('stat-success-count');
+//     console.log("Cartas estudadas hoje:", studiedCards);
+//     atualizarProgresso(porcentagem.toFixed(2));
+// }
 
-    if (elEstudados) {
-        let atualEstudados = parseInt(elEstudados.textContent) || 0;
-        elEstudados.textContent = atualEstudados + 1;
-    }
 
-    if (foiAcerto && elAcertos) {
-        let atualAcertos = parseInt(elAcertos.textContent) || 0;
-        elAcertos.textContent = atualAcertos + 1;
-    }
-}
+// async function fetchAndDisplayNextCard() {
+//     // 1. If a card is currently loaded, swipe it away first
+//     if (currentCard) {
+//         flashcardItem.classList.add("swipe-left");
+//         // Wait 400 milliseconds for the CSS slide out animation to finish
+//         await new Promise(resolve => setTimeout(resolve, 400));
+//     }
 
-// =========================
-// API FUNCTIONS
-// =========================
+//     // 2. Fetch new backend data
+//     try {
+//         const data = await pickCard()
+//         const card = data.card;
 
-// Return user info such as name, id, email, admin, current_streak...
-async function getUserInfo() {
-
-    const response =
-        await apiFetch("http://localhost:8000/user/me")
+//         const totalCards = data.total_cards;
+//         const cardsToReview = data.cards_to_review;
 
-    const info = await response.json()
-
-    console.log(info)
+//         const userInfo = await getCardsInfo();
 
-    return info
-}
+//         await atualizarResumo(userInfo.total_cards, userInfo.studied_today, userInfo.correct_today, userInfo.current_streak)
 
-// Call it when access_token gets expired.
-async function refreshToken() {
-
-    const response = await apiFetch(
-        "http://localhost:8000/auth/refresh",
-        {
-            method: "POST"
-        }
-    )
+//         if (!card) {
+//             hideAllSections();
+//             emptyReviewSection.style.display = "block";
+//             currentCard = null;
+//             updateProgress(userInfo, cardsToReview)
+//             return;
+//         }
 
-    const result = await response.json()
 
-    return result
-}
+//         // 3. Teleport our empty card frame onto the right side stage out of view
+//         flashcardItem.className = "flashcard-item prepare-right";
+//         cardInner.classList.remove("is-flipped"); // Reset face rotation angle
 
+//         // Force browser to register positioning layout change before updating visuals
+//         void flashcardItem.offsetWidth;
 
-async function verifyAuthentication() {
+//         // 4. Paint the text updates
+//         currentCard = card;
+//         questionField.textContent = card.front_content;
+//         answerField.textContent = card.back_content;
 
-    const response = await apiFetch(
-        "http://localhost:8000/auth/protected",
-        {
-            method: "POST"
-        }
-    )
+//         updateProgress(userInfo, cardsToReview)
 
-    const authInfo = await response.json()
+//         // // Reset control interface button wrappers
+//         answerButton.style.display = 'block';
 
-    return authInfo.authenticated
-}
+//         // // 5. Release card to glide smoothly back center stage
+//         flashcardItem.className = "flashcard-item";
 
-async function deleteCard(cardId) {
-    const deleteCardsUrl = `http://localhost:8000/cards/delete_card/${cardId}`;
-    const response = await apiFetch(deleteCardsUrl, {method: "DELETE"});
+//     } catch (error) {
+//         console.error("Failed executing deck cycle step:", error);
+//     }
+// }
 
-    const jsonResponse = await response.json();
+// // =========================
+// // UI FUNCTIONS
+// // =========================
 
-    return jsonResponse;
+// function atualizarProgresso(porcentagem) {
+//     const fgCircle = document.querySelector('.fg-circle');
+//     const textDisplay = document.querySelector('.progress-text');
 
-}
+//     const circunferenciaTotal = 314;
+//     // Descobre quanto vai sobrar subtraindo a fração da porcentagem
+//     const offset = circunferenciaTotal - (circunferenciaTotal * (porcentagem / 100));
 
-async function pickCard() {
+//     // Aplica no estilo e atualiza o texto interno
+//     fgCircle.style.strokeDashoffset = offset;
+//     textDisplay.textContent = `${porcentagem}%`;
+// }
 
-    const response = await apiFetch("http://localhost:8000/cards/pick_card");
+// // Exemplo de uso: atualizarProgresso(72);
 
-    const data = await response.json();
+// async function toggleReviewSection(cards) {
 
-    return data;
-}
+//     const shouldOpen =
+//         !isReviewSectionOpened;
 
-function updateProgress(totalCards, cardsToReview) {
+//     hideAllSections();
 
-    if (totalCards === 0) {
-        atualizarProgresso(0);
-        return;
-    }
-    progressStatus.textContent = `${cardsToReview} / ${totalCards}`
+//     if (shouldOpen) {
 
-    console.log(progressStatus.textContent)
+//         if (!cards){
+//             console.log("Empty review section is been displayed.")
+//             emptyReviewSection.style.display = "flex"
+//         } else {
+//             reviewSection.style.display = "flex";
 
-    const studiedCards = totalCards - cardsToReview;
+//             console.log("review section is been displayed.")
+//         }
+//         isReviewSectionOpened = true;
 
-    const porcentagem = (studiedCards / totalCards) * 100;
 
-    atualizarProgresso(porcentagem.toFixed(2));
-}
+//     } else {
 
+//         reviewSection.style.display = "none";
+//         emptyReviewSection.style.display = "none"
 
-async function fetchAndDisplayNextCard() {
-    // 1. If a card is currently loaded, swipe it away first
-    if (currentCard) {
-        flashcardItem.classList.add("swipe-left");
-        // Wait 400 milliseconds for the CSS slide out animation to finish
-        await new Promise(resolve => setTimeout(resolve, 400));
-    }
+//         isReviewSectionOpened = false;
+//     }
+// }
 
-    // 2. Fetch new backend data
-    try {
-        const data = await pickCard()
-        const card = data.card;
+// function toggleRemoveCardsButton() {
 
-        const totalCards = data.total_cards;
-        const cardsToReview = data.cards_to_review;
+//     if (selectedCardsToRemove.length >= 1) {
 
-        if (!card) {
-            hideAllSections();
-            emptyReviewSection.style.display = "block";
-            currentCard = null;
-            updateProgress(totalCards, cardsToReview)
-            return;
-        }
-        
+//         removeCards.style.display = "flex";
+//         removeCards.textContent = `Remover selecionados ${selectedCardsToRemove.length}`
 
-        // 3. Teleport our empty card frame onto the right side stage out of view
-        flashcardItem.className = "flashcard-item prepare-right";
-        cardInner.classList.remove("is-flipped"); // Reset face rotation angle
+//     } else {
 
-        // Force browser to register positioning layout change before updating visuals
-        void flashcardItem.offsetWidth;
+//         removeCards.style.display = "none";
+//     }
+// }
 
-        // 4. Paint the text updates
-        currentCard = card;
-        questionField.textContent = card.front_content;
-        answerField.textContent = card.back_content;
+// function hideAllSections() {
 
-        updateProgress(totalCards, cardsToReview)
+//     addCardSection.style.display = "none";
 
-        // // Reset control interface button wrappers
-        answerButton.style.display = 'block';
+//     viewCardsWindow.style.display = "none";
 
-        // // 5. Release card to glide smoothly back center stage
-        flashcardItem.className = "flashcard-item";
+//     reviewSection.style.display = "none";
 
-    } catch (error) {
-        console.error("Failed executing deck cycle step:", error);
-    }
-}
+//     emptyReviewSection.style.display = "none"
 
-async function reviewCard(){
-    const pickCardUrl = "http://localhost:8000/cards/pick_card";
-    const response = await apiFetch(pickCardUrl)
+//     statisticsSection.style.display = "none"
 
-    const jsonResponse = await response.json();
-    const card = jsonResponse.card;
+//     isCardWindowOpened = false;
 
+//     isViewCardWindowOpened = false;
 
-    if (!card){
-        return null
-    }
+//     isReviewSectionOpened = false;
 
-    currentCard = card
+//     resetSelectedCards();
+// }
 
-    questionField.textContent = card.front_content;
-    answerField.textContent = card.back_content;
+// function resetSelectedCards() {
 
-    return card
-}
+//     selectedCardsToRemove = [];
 
-async function addCard(frontContent, backContent) {
+//     toggleRemoveCardsButton();
 
-    const response = await apiFetch(
-        "http://localhost:8000/cards/add_card",
-        {
-            method: "POST",
+//     document.querySelectorAll(".selected-row")
+//         .forEach(row => {
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+//             row.classList.remove("selected-row");
 
-            body: JSON.stringify({
-                front_content: frontContent,
-                back_content: backContent
-            })
-        }
-    )
+//         });
+// }
 
-    const result = await response.json()
+// function toggleAddCardSection() {
 
-    console.log(result)
+//     const shouldOpen = !isCardWindowOpened;
 
-    return result
-}
+//     hideAllSections();
 
-// =========================
-// UI FUNCTIONS
-// =========================
+//     if (shouldOpen) {
 
-function atualizarProgresso(porcentagem) {
-    const fgCircle = document.querySelector('.fg-circle');
-    const textDisplay = document.querySelector('.progress-text');
-    
-    const circunferenciaTotal = 314;
-    // Descobre quanto vai sobrar subtraindo a fração da porcentagem
-    const offset = circunferenciaTotal - (circunferenciaTotal * (porcentagem / 100));
-    
-    // Aplica no estilo e atualiza o texto interno
-    fgCircle.style.strokeDashoffset = offset;
-    textDisplay.textContent = `${porcentagem}%`;
-}
+//         addCardSection.style.display = "block";
 
-// Exemplo de uso: atualizarProgresso(72);
+//         isCardWindowOpened = true;
+//     }
+// }
 
-async function toggleReviewSection(cards) {
+// async function toggleViewCardsSection() {
 
-    const shouldOpen =
-        !isReviewSectionOpened;
+//     const shouldOpen = !isViewCardWindowOpened;
 
-    hideAllSections();
+//     hideAllSections();
 
-    if (shouldOpen) {
+//     if (shouldOpen) {
 
-        if (!cards){
-            console.log("empty review section is been displayed.")
-            emptyReviewSection.style.display = "flex"
-        } else {
-            const response = await apiFetch("http://localhost:8000/cards/cards/999");
+//         viewCardsWindow.style.display = "block";
 
-            const jsonResp = await response.json();
+//         isViewCardWindowOpened = true;
+//     }
+// }
 
-            allCards = jsonResp.cards;
-            reviewSection.style.display = "flex";
 
-            
-            
+// async function updateUserUI() {
 
-            console.log("review section is been displayed.")
-        }
-        isReviewSectionOpened = true;
-        
+//     if (!userInfoElement) {
+//         console.log("Element user-info does not exist.")
+//         return
+//     }
+//     const userInfo = await getCardsInfo();
+//     const user = await getUserInfo()
 
-    } else {
+//     if (!user || !user.user_info || !user.user_info.name) {
+//         console.log(user)
+//         console.log("User information wasn't loaded properly.")
+//         return
+//     }
 
-        reviewSection.style.display = "none";
-        emptyReviewSection.style.display = "none"
+//     userInfoElement.textContent =
+//         user.user_info.name
 
-        isReviewSectionOpened = false;
-    }
-}
+//     atualizarResumo(userInfo.total_cards, userInfo.studied_today, userInfo.correct_today, userInfo.current_streak)
 
-function toggleRemoveCardsButton() {
+//     const data = await pickCard()
+//     const totalCards = data.total_cards;
+//     const cardsToReview = data.cards_to_review;
 
-    if (selectedCardsToRemove.length >= 1) {
+//     updateProgress(userInfo, cardsToReview)
 
-        removeCards.style.display = "flex";
-        removeCards.textContent = `Remover selecionados ${selectedCardsToRemove.length}`
+// }
 
-    } else {
 
-        removeCards.style.display = "none";
-    }
-}
+// // =========================
+// // AUTH FLOW
+// // =========================
 
-function hideAllSections() {
+// async function authenticateUser() {
 
-    addCardSection.style.display = "none";
+//     let authenticated =
+//         await verifyAuthentication()
 
-    viewCardsWindow.style.display = "none";
+//     if (authenticated) {
+//         return true
+//     }
 
-    reviewSection.style.display = "none";
+//     console.log("Access token expired. Trying refresh...")
 
-    emptyReviewSection.style.display = "none"
+//     const refreshData = await refreshToken()
 
-    isCardWindowOpened = false;
+//     if (!refreshData.authenticated) {
 
-    isViewCardWindowOpened = false;
+//         console.log("Refresh failed.")
 
-    isReviewSectionOpened = false;
+//         window.location.href =
+//             "login_page.html"
 
-    resetSelectedCards();
-}
+//         return false
+//     }
 
-function resetSelectedCards() {
+//     console.log("Token refreshed successfully.")
 
-    selectedCardsToRemove = [];
+//     return true
+// }
+// // =========================
+// // EVENT LISTENERS
+// // =========================
 
-    toggleRemoveCardsButton();
+// let isFlipped = false
+// const { reviewChart } = createCharts()
 
-    document.querySelectorAll(".selected-row")
-        .forEach(row => {
 
-            row.classList.remove("selected-row");
+// statisticsButton.addEventListener('click', async () => {
 
-        });
-}
+//     console.log("Statistics button clicked");
 
-function toggleAddCardSection() {
+//     const isVisible =
+//         statisticsSection.style.display === 'flex';
 
-    const shouldOpen = !isCardWindowOpened;
+//         const data = await apiFetch(`${API_BASE_URL}/cards/reviews_period?days_period=30`);
 
-    hideAllSections();
+//         const jsonData = await data.json();
 
-    if (shouldOpen) {
+//         let array = [];
 
-        addCardSection.style.display = "block";
+//         Object.values(jsonData).forEach(value => {
+//             array.push(value);
+//             console.log(value)
+//         })
 
-        isCardWindowOpened = true;
-    }
-}
+//         console.log(array)
 
-async function toggleViewCardsSection() {
+//         reviewChart.data.datasets[0].data = array;
+//         reviewChart.update();
 
-    const shouldOpen = !isViewCardWindowOpened;
+//     hideAllSections();
 
-    hideAllSections();
+//     if (!isVisible) {
+//         statisticsSection.style.display = 'flex';
+//     }
 
-    if (shouldOpen) {
+// });
 
-        viewCardsWindow.style.display = "block";
 
-        isViewCardWindowOpened = true;
-    }
-}
 
+// answerButton.addEventListener('click', async () => {
+//     // Adiciona a classe que gira a carta em 180 graus no espaço 3D
 
-async function updateUserUI() {
+//     if (!isFlipped){
+//         cardInner.classList.add('is-flipped');
+//         isFlipped = true;
+//         difficultyButtons.style.display = 'flex';
 
-    if (!userInfoElement) {
-        console.log("Element user-info does not exist.")
-        return
-    }
-    const userInfo = await getCardsInfo();
-    const user = await getUserInfo()
+//     } else {
+//         cardInner.classList.remove('is-flipped');
+//         isFlipped = false;
+//         difficultyButtons.style.display = 'none';
+//     }
 
-    if (!user || !user.user_info || !user.user_info.name) {
-        console.log(user)
-        console.log("User information wasn't loaded properly.")
-        return
-    }
+//     console.log("Mostrar resposta has been clicked.")
+// });
 
-    userInfoElement.textContent =
-        user.user_info.name
+// reviewCardsButton.addEventListener("click", async() => {
 
-    atualizarResumo(userInfo.total_cards, userInfo.studied_today, userInfo.correct_today, userInfo.current_streak)
+//     // showToast("Iniciando sessão de estudo...")
 
-    data = await pickCard()
-    const totalCards = data.total_cards;
-    const cardsToReview = data.cards_to_review;
+//     const hasCards = await loadReviewCard()
+//     await toggleReviewSection(hasCards);
 
-    updateProgress(totalCards, cardsToReview)
+// });
 
-}
+// logoutButton.addEventListener("click", async () => {
 
+//     await logout()
 
-// =========================
-// AUTH FLOW
-// =========================
+//     window.location.href = "login_page.html";
+// });
 
-async function authenticateUser() {
+// addCardButton.addEventListener("click", () => {
 
-    let authenticated =
-        await verifyAuthentication()
+//     toggleAddCardSection()
+// })
 
-    if (authenticated) {
-        return true
-    }
+// removeCards.addEventListener("click", async () => {
 
-    console.log("Access token expired. Trying refresh...")
+//     for (const cardId of selectedCardsToRemove) {
 
-    const refreshData = await refreshToken()
+//         await deleteCard(cardId);
 
-    if (!refreshData.authenticated) {
+//     }
 
-        console.log("Refresh failed.")
+//     selectedCardsToRemove = [];
+//     toggleRemoveCardsButton();
+//     location.reload();
 
-        window.location.href =
-            "login_page.html"
+// });
+// submitButton.addEventListener("click", async (event) => {
 
-        return false
-    }
+//     event.preventDefault();
 
-    console.log("Token refreshed successfully.")
+//     const frontContent =
+//         frontContentInput.value.trim()
 
-    return true
-}
-// =========================
-// EVENT LISTENERS
-// =========================
+//     const backContent =
+//         backContentInput.value.trim()
 
-var isFlipped = false;
+//     const deckName =
+//         deckNameInput.value.trim()
 
-answerButton.addEventListener('click', () => {
-    // Adiciona a classe que gira a carta em 180 graus no espaço 3D
+//     if (!frontContent || !backContent || !deckName) {
 
-    if (!isFlipped){
-        cardInner.classList.add('is-flipped'); 
-        isFlipped = true;
-        difficultyButtons.style.display = 'flex';
-    } else {
-        cardInner.classList.remove('is-flipped');
-        isFlipped = false;
-        difficultyButtons.style.display = 'none';
-    }
-    
-    console.log("Mostrar resposta has been clicked.")
-});
+//         console.log("Fields are empty.")
 
-reviewCardsButton.addEventListener("click", async() => {
+//         return
+//     }
 
-    const hasCards = await reviewCard()
-    await toggleReviewSection(hasCards);
-    
-});
+//     const result =
+//         await addCard(frontContent, backContent)
 
-logoutButton.addEventListener("click", async () => {
+//     console.log(result)
 
-    await fetch("http://localhost:8000/auth/logout", {
-        method: "POST",
-        credentials: "include"
-    });
+//     // Optional cleanup
 
-    window.location.href = "login_page.html";
-});
+//     frontContentInput.value = ""
+//     backContentInput.value = ""
 
-addCardButton.addEventListener("click", () => {
+//     console.log("Adding card...")
 
-    toggleAddCardSection()
-})
+//     location.reload();
+// })
 
-removeCards.addEventListener("click", async () => {
 
-    for (const cardId of selectedCardsToRemove) {
+// viewCardsButton.addEventListener("click", async () => {
 
-        await deleteCard(cardId);
+//     console.log("View cards clicked.")
 
-    }
+//     // showToast("Carregando cartas...", "info")
 
-    selectedCardsToRemove = [];
-    toggleRemoveCardsButton();
-    location.reload();
+//     // await toggleRemoveCardsButton();
 
-});
-submitButton.addEventListener("click", async (event) => {
+//     const isViewWindowOpened = await toggleViewCardsSection();
 
-    // event.preventDefault();
+//     await viewCards();
 
-    const frontContent =
-        frontContentInput.value.trim()
+//     if (!isViewCardWindowOpened){
+//         return
+//     }
 
-    const backContent =
-        backContentInput.value.trim()
+//     const cards = await viewCards(9999)
 
-    const deckName =
-        deckNameInput.value.trim()
+//     if (!cards.cards){
+//         console.log("No cards to show")
+//         tableBody.innerHTML = "";
+//         return
+//     }
 
-    if (!frontContent || !backContent || !deckName) {
+//     tableBody.innerHTML = "";
 
-        console.log("Fields are empty.")
+//     const cardsArray = cards.cards
 
-        return
-    }
+//     cardsArray.forEach(card => {
+//         const row = document.createElement("tr");
 
-    const result =
-        await addCard(frontContent, backContent)
+//         row.addEventListener("click", async () => {
 
-    console.log(result)
+//             let cardIdClicked =
+//                 row.querySelector(".card-id");
 
-    // Optional cleanup
+//             const cardId =
+//                 parseInt(cardIdClicked.textContent);
 
-    frontContentInput.value = ""
-    backContentInput.value = ""
+//             if (selectedCardsToRemove.includes(cardId)) {
 
-    console.log("Adding card...")
+//                 selectedCardsToRemove =
+//                     selectedCardsToRemove.filter(
+//                         id => id !== cardId
+//                     );
 
-    location.reload();
-})
+//                 row.classList.remove("selected-row");
 
+//                 console.log("Removed:", cardId);
 
-viewCardsButton.addEventListener("click", async () => {
+//             } else {
 
-    console.log("View cards clicked.")
+//                 selectedCardsToRemove.push(cardId);
 
-    // await toggleRemoveCardsButton();
+//                 row.classList.add("selected-row");
 
-    const isViewWindowOpened = await toggleViewCardsSection();
+//                 console.log("Added:", cardId);
+//             }
 
-    if (!isViewCardWindowOpened){
-        return
-    }
+//             await toggleRemoveCardsButton();
 
-    const cards = await viewCards(9999)
+//             console.log(selectedCardsToRemove);
 
-    if (!cards.cards){
-        console.log("No cards to show")
-        tableBody.innerHTML = "";
-        return
-    }
+//         });
 
-    tableBody.innerHTML = "";
+//         row.innerHTML = `
+//         <td><h3 class="card-id">${card.id}</h3></td>
+//         <td>${card.front_content}</td>
+//         <td>${card.back_content}</td>
+//         <td>
+//             <button type="button" class="delete-button">
+//                 🗑️
+//             </button>
+//         </td>
+//         `
 
-    const cardsArray = cards.cards
+//         const deleteButton = row.querySelector(".delete-button");
 
-    cardsArray.forEach(card => {
-        const row = document.createElement("tr");
+//         deleteButton.addEventListener("click", async (event) => {
 
-        row.addEventListener("click", async () => {
+//             event.preventDefault();
 
-            let cardIdClicked =
-                row.querySelector(".card-id");
+//             const confirmed = confirm(
+//                 "Tem certeza que deseja deletar esta carta?"
+//             );
 
-            const cardId =
-                parseInt(cardIdClicked.textContent);
+//             if (!confirmed) {
+//                 return;
+//             }
 
-            if (selectedCardsToRemove.includes(cardId)) {
+//             console.log("Deleting card", card.id);
 
-                selectedCardsToRemove =
-                    selectedCardsToRemove.filter(
-                        id => id !== cardId
-                    );
+//             await deleteCard(card.id);
 
-                row.classList.remove("selected-row");
+//             row.remove();
 
-                console.log("Removed:", cardId);
+//         });
 
-            } else {
+//     tableBody.appendChild(row)
 
-                selectedCardsToRemove.push(cardId);
 
-                row.classList.add("selected-row");
+//     });
 
-                console.log("Added:", cardId);
-            }
+// })
 
-            await toggleRemoveCardsButton();
+// document.querySelectorAll(".difficulty-btn").forEach(button => {
 
-            console.log(selectedCardsToRemove);
+//     button.addEventListener("click", async (event) => {
 
-        });
+//         // event.preventDefault();
 
-        row.innerHTML = `
-        <td><h3 class="card-id">${card.id}</h3></td>
-        <td>${card.front_content}</td>
-        <td>${card.back_content}</td>
-        <td> 
-            <button type="button" class="delete-button">
-                🗑️
-            </button>
-        </td>
-        `
+//         try {
 
-        const deleteButton = row.querySelector(".delete-button");
+//             const difficulty = event.currentTarget.dataset.difficulty;
 
-        deleteButton.addEventListener("click", async (event) => {
+//             console.log(difficulty);
 
-            event.preventDefault();
+//             const cardID = currentCard.id;
 
-            const confirmed = confirm(
-                "Tem certeza que deseja deletar esta carta?"
-            );
+//             await updateCardDifficulty(cardID, difficulty)
 
-            if (!confirmed) {
-                return;
-            }
+//             await fetchAndDisplayNextCard()
 
-            console.log("Deleting card", card.id);
+//             // await updateUserUI()
 
-            await deleteCard(card.id);
+//             difficultyButtons.style.display = 'none';
 
-            row.remove();
+//         } catch (err) {
 
-        });
+//             console.error("ERROR:", err);
+//         }
+//     });
 
-    tableBody.appendChild(row)
+// });
+// // =========================
+// // APP INITIALIZATION
+// // =========================
+// window.addEventListener("DOMContentLoaded", async () => {
 
+//     console.log("Site has been loaded.")
 
-    });
-    
-})
+//     // tableBody.style.display = "none"
 
-document.querySelectorAll(".difficulty-btn").forEach(button => {
+//     const authenticated =
+//         await authenticateUser()
 
-    button.addEventListener("click", async (event) => {
+//     if (!authenticated) {
+//         return
+//     }
 
-        // event.preventDefault();
-
-        try {
-
-            const difficulty = event.currentTarget.dataset.difficulty;
-
-            console.log(difficulty);
-
-            const cardID = currentCard.id;
-
-            const updateCardUrl =
-                `http://localhost:8000/cards/update_card?difficulty=${difficulty}&card_id=${cardID}`;
-
-           
-            
-            const response = await apiFetch(updateCardUrl, {
-                method: "POST",
-                redirect: "manual"
-            });
-
-            const jsonResp = await response.json();
-
-            // console.log(jsonResp);
-
-            await fetchAndDisplayNextCard()
-            // await updateUserUI()
-
-            // reviewBack.style.display = 'none';
-            difficultyButtons.style.display = 'none';
-
-        } catch (err) {
-
-            console.error("ERROR:", err);
-        }
-    });
-
-});
-// =========================
-// APP INITIALIZATION
-// =========================
-async function getCardsInfo() {
-    const userInfoURL = "http://localhost:8000/cards/me";
-
-    try {
-        const userInfo = await apiFetch(userInfoURL);
-
-        // Se o status não for 200, pula direto para o bloco catch lá embaixo
-        if (!userInfo.ok || userInfo.status !== 200) {
-            throw new Error(`Erro na API. Status HTTP: ${userInfo.status}`);
-        }
-
-        // Converte e retorna o objeto limpo vindo do Python
-        const responseJson = await userInfo.json();
-        return responseJson;
-
-    } catch (error) {
-        console.error("Falha crítica ao buscar informações do usuário:", error.message);
-        
-        // Em vez de retornar null, retornamos um objeto com valores zerados
-        // para garantir que seu painel da direita continue renderizando sem quebrar o HTML
-        return {
-            total_cards: 0,
-            studied_today: 0,
-            correct_today: 0,
-            current_streak: 0
-        };
-    }
-}
-
-window.addEventListener("DOMContentLoaded", async () => {
-
-    console.log("Site has been loaded.")
-
-    // tableBody.style.display = "none"
-
-    const authenticated =
-        await authenticateUser()
-
-    if (!authenticated) {
-        return
-    }
-
-    await updateUserUI()
-})
-
+//     await updateUserUI()
+// })

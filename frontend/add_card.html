@@ -1,0 +1,379 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow | Seu espaço de estudo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/index.css">
+    <link rel="stylesheet" href="assets/css/add-card.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class="dashboard">
+
+        <!-- HEADER -->
+        <header class="header">
+            <h1 class="logo">
+                Study<span id="cards-logo">Flow</span>
+            </h1>
+
+            <nav>
+                <ul>
+                    <li>
+                        <a href="index.html" class="hub" id="home-link">
+                            <i class="fa-solid fa-house"></i> Início
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="hub">
+                            <i class="fa-solid fa-layer-group"></i> Meus Decks
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="hub">
+                            <i class="fa-solid fa-chart-line"></i> Estatísticas
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="user-profile">
+                <i class="fa-solid fa-user"></i>
+                <span id="user-info"></span>
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Alternar tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="logout-button" id="logout-button">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT WRAPPER -->
+        <main class="content">
+
+            <!-- SIDEBAR -->
+            <section class="cards-container">
+                <div class="card" id="open-add-card">
+                    <i class="fa-solid fa-plus"></i>
+                    <h3 class="sidebar-texts">Adicionar Carta</h3>
+                </div>
+
+                <div class="card" id="review-cards">
+                    <i class="fa-solid fa-book-open"></i>
+                    <h3 class="sidebar-texts">Revisar Cartas</h3>
+                </div>
+
+                <div class="card" id="statistics">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <h3 class="sidebar-texts">Estatísticas</h3>
+                </div>
+
+                <div>
+
+                    <div class="progress-box">
+                        <h3>Progresso de Hoje</h3>
+
+                        <div class="circular-progress">
+                            <svg class="progress-svg" viewBox="0 0 120 120">
+                                <circle class="bg-circle" cx="60" cy="60" r="50"></circle>
+                                <circle class="fg-circle" cx="60" cy="60" r="50"></circle>
+                            </svg>
+
+                            <div class="progress-text">0%</div>
+                        </div>
+
+                        <p><strong class="progress-status" id="progress-status">0 / 0</strong> cards</p>
+                        <a href="#" class="progress-link">Continue assim! 🚀</a>
+                    </div>
+
+                </div>
+            </section>
+
+            <div class="main-content">
+
+            <section class="today-strip" id="today-strip">
+                <div class="today-heading">
+                    <span class="eyebrow">Hoje</span>
+                    <h2>Seu ritmo de estudo</h2>
+                    <p>Pequenos ciclos, progresso consistente.</p>
+                </div>
+                <div class="today-metric"><strong id="today-studied">0</strong><span>estudados</span></div>
+                <div class="today-metric"><strong id="today-pending">0</strong><span>para revisar</span></div>
+                <div class="today-metric"><strong id="today-success">0</strong><span>acertos</span></div>
+            </section>
+
+            <section class="activity-panel" id="activity-panel">
+                <div class="activity-heading">
+                    <div>
+                        <span class="eyebrow">Atividade</span>
+                        <h2>Últimos 7 dias</h2>
+                    </div>
+                    <div class="activity-average"><strong id="activity-average">0</strong><span>média diária</span></div>
+                </div>
+                <div class="activity-chart-wrap"><canvas id="activityChart" aria-label="Cards estudados nos últimos sete dias"></canvas></div>
+            </section>
+
+            <section class="decks-panel" id="decks-panel">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Seu espaço de estudo</span>
+                        <h2>Meus decks</h2>
+                    </div>
+                    <button class="secondary-button" id="new-deck-button" type="button">
+                        <i class="fa-solid fa-plus"></i> Novo deck
+                    </button>
+                </div>
+                <div class="deck-grid" id="deck-grid"></div>
+                <div class="empty-decks" id="empty-decks" hidden>
+                    <i class="fa-solid fa-layer-group"></i>
+                    <h3>Seu primeiro deck começa aqui</h3>
+                    <p>Crie um deck para organizar seus estudos por assunto.</p>
+                    <button class="primary-button" id="empty-new-deck-button" type="button">Criar deck</button>
+                </div>
+            </section>
+
+            <section class="deck-workspace" id="deck-workspace" hidden>
+                <div class="workspace-heading">
+                    <button class="back-button" id="back-to-decks" type="button" aria-label="Voltar para decks">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <div>
+                        <span class="eyebrow">Deck selecionado</span>
+                        <h2 id="active-deck-name">Deck</h2>
+                        <p id="active-deck-description"></p>
+                    </div>
+                    <div class="workspace-actions">
+                        <button class="secondary-button" id="workspace-study-button" type="button"><i class="fa-solid fa-book-open"></i> Estudar</button>
+                        <button class="primary-button" id="workspace-add-button" type="button"><i class="fa-solid fa-plus"></i> Adicionar card</button>
+                    </div>
+                </div>
+                <div class="deck-stats" id="deck-stats"></div>
+                <div class="deck-card-list" id="deck-card-list"></div>
+            </section>
+
+            <input type="hidden" id="card-id" value="">
+
+            <section class="view-cards-window" id="view-cards-window">
+                <h2 class="cartas-text">Cartas</h2>
+
+                <table class="cards-table-class" id="cards-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Frente</th>
+                            <th>Verso</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cards-table-body">
+                        </tbody>
+                </table>
+
+                <div class="actions-bar">
+                    <button class="remove-all-cards" id="remove-all-cards">
+                        Remover Selecionados
+                    </button>
+                </div>
+            </section>
+
+            <!-- <div class="statistics-section" id="statistics-section">
+                <div class="review-chart">
+                    <canvas id="reviewChart"></canvas>
+                </div>
+                <div class="difficulty-chart">
+                    <canvas id="difficultyChart"> </canvas>
+                </div>
+            </div> -->
+
+            <div class="statistics-bottom">
+                <div>
+                    <!-- teste -->
+                </div>
+            </div>
+            <section class="review-section" id="review-section">
+                <div class="review-card-container">
+
+                    <ul class="cards">
+                        <li id="flashcard-item" class="flashcard-item">
+                            <div class="review-card-inner" id="card-inner">
+
+                                <div class="review-front" id="review-front">
+                                    <h3 class="question-text-field">Pergunta</h3>
+                                    <p id="review-front-content">O que é Python?</p>
+                                </div>
+
+                                <div class="review-back" id="review-back">
+                                    <h3 class="answer-text-field">Resposta</h3>
+                                    <p id="review-back-content">Python é uma linguagem de programação.</p>
+                                </div>
+
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="review-actions">
+                        <button type="button" class="show-answer-button" id="show-answer-button">
+                            <i class="fa-solid fa-eye"></i> Mostrar Resposta
+                        </button>
+                    </div>
+
+                    <div class="difficulty-buttons" id="difficulty-buttons">
+                        <button type="button" class="difficulty-btn hard" data-difficulty="hard">
+                            <div class="btn-icon"><i class="fa-solid fa-circle-xmark"></i></div>
+                            <div class="btn-texts">
+                                <span class="btn-title">Difícil</span>
+                                <span class="btn-desc">Não lembrei</span>
+                            </div>
+                        </button>
+
+                        <button type="button" class="difficulty-btn medium" data-difficulty="medium">
+                            <div class="btn-icon"><i class="fa-solid fa-circle-minus"></i></div>
+                            <div class="btn-texts">
+                                <span class="btn-title">Médio</span>
+                                <span class="btn-desc">Lembrei com esforço</span>
+                            </div>
+                        </button>
+
+                        <button type="button" class="difficulty-btn good" data-difficulty="good">
+                            <div class="btn-icon"><i class="fa-solid fa-circle-check"></i></div>
+                            <div class="btn-texts">
+                                <span class="btn-title">Bom</span>
+                                <span class="btn-desc">Lembrei bem</span>
+                            </div>
+                        </button>
+
+                        <button type="button" class="difficulty-btn easy" data-difficulty="easy">
+                            <div class="btn-icon"><i class="fa-solid fa-circle-check"></i></div>
+                            <div class="btn-texts">
+                                <span class="btn-title">Fácil</span>
+                                <span class="btn-desc">Muito fácil</span>
+                            </div>
+                        </button>
+                    </div>
+
+                </div>
+            </section>
+
+            <section class="empty-review-section" id="empty-review-section">
+                <div class="empty-container">
+                    <h2>YOU ALREADY REVIEWED ALL CARDS</h2>
+                    <p>Come back later or add new cards to continue studying.</p>
+                </div>
+            </section>
+
+            <section class="add-card-section" id="add-card-section">
+                <div class="editor-heading">
+                    <div>
+                        <span class="eyebrow">No deck <strong id="editor-deck-name">selecione um deck</strong></span>
+                        <h2>Adicionar novo flashcard</h2>
+                    </div>
+                
+                <div>
+                    <label for="decks">
+                        Selecione um deck
+                    </label>
+
+                    <select name="decks" id="decks" class="decks-dropdown-list">
+                    </select>
+                </div>
+                    
+                </div>
+                <form id="card-form">
+                    <label for="front-content">Front <span>pergunta ou conceito</span></label>
+                    <div class="rich-editor">
+                        <div class="editor-toolbar" data-target="front-content" role="toolbar" aria-label="Formatação do front">
+                            <button type="button" data-command="bold" aria-label="Negrito"><strong>B</strong></button>
+                            <button type="button" data-command="italic" aria-label="Itálico"><em>I</em></button>
+                            <button type="button" data-command="underline" aria-label="Sublinhado"><u>U</u></button>
+                            <button type="button" data-command="insertUnorderedList" aria-label="Lista"><i class="fa-solid fa-list"></i></button>
+                            <button type="button" data-command="removeFormat" aria-label="Limpar formatação"><i class="fa-solid fa-eraser"></i></button>
+                        </div>
+                        <div id="front-content" class="editor-surface" contenteditable="true" data-placeholder="Digite a pergunta..." role="textbox" aria-multiline="true"></div>
+                    </div>
+
+                    <label for="back-content">Back <span>resposta e explicação</span></label>
+                    <div class="rich-editor">
+                        <div class="editor-toolbar" data-target="back-content" role="toolbar" aria-label="Formatação do back">
+                            <button type="button" data-command="bold" aria-label="Negrito"><strong>B</strong></button>
+                            <button type="button" data-command="italic" aria-label="Itálico"><em>I</em></button>
+                            <button type="button" data-command="underline" aria-label="Sublinhado"><u>U</u></button>
+                            <button type="button" data-command="insertUnorderedList" aria-label="Lista"><i class="fa-solid fa-list"></i></button>
+                            <button type="button" data-command="removeFormat" aria-label="Limpar formatação"><i class="fa-solid fa-eraser"></i></button>
+                        </div>
+                        <div id="back-content" class="editor-surface" contenteditable="true" data-placeholder="Digite a resposta..." role="textbox" aria-multiline="true"></div>
+                    </div>
+
+                    <button class="primary-button save-card-button" type="submit" id="submit-button"><i class="fa-solid fa-check"></i> Salvar flashcard</button>
+                </form>
+            </section>
+
+        </div> <aside class="right-sidebar">
+
+            <div class="info-card summary-box">
+                <h4 class="sidebar-right-title">Resumo</h4>
+
+                <ul class="summary-list">
+                    <li>
+                        <div class="stat-icon cards-total"><i class="fa-solid fa-book-bookmark"></i></div>
+                        <div class="stat-texts">
+                            <span class="stat-number" id="stat-total-cards">0</span>
+                            <span class="stat-label">Total de Cards</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="stat-icon cards-studied"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="stat-texts">
+                            <span class="stat-number" id="stat-studied-today">0</span>
+                            <span class="stat-label">Estudados Hoje</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="stat-icon cards-correct"><i class="fa-solid fa-circle-check"></i></div>
+                        <div class="stat-texts">
+                            <span class="stat-number" id="stat-success-count">0</span>
+                            <span class="stat-label">Acertos</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="stat-icon cards-streak"><i class="fa-solid fa-fire"></i></div>
+                        <div class="stat-texts">
+                            <span class="stat-number" id="stat-streak-days">0</span>
+                            <span class="stat-label">dias Sequência Atual</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="info-card tip-box">
+                <h4 class="sidebar-right-title"><i class="fa-solid fa-lightbulb"></i> Dica</h4>
+                <p class="tip-text">Revise os cards regularmente para fixar o conteúdo!</p>
+            </div>
+
+        </aside> </main>
+
+    </div> <!-- /dashboard -->
+
+    <div class="modal-backdrop" id="deck-modal" hidden>
+        <form class="modal" id="deck-form">
+            <button class="modal-close back-button" id="close-deck-modal" type="button" aria-label="Fechar"><i class="fa-solid fa-xmark"></i></button>
+            <span class="eyebrow">Organize seu estudo</span>
+            <h2>Criar novo deck</h2>
+            <label for="new-deck-name">Nome do deck</label>
+            <input id="new-deck-name" maxlength="80" required placeholder="Ex.: Python — Estruturas de Dados">
+            <label for="new-deck-description">Descrição <span>opcional</span></label>
+            <label for="deck-type">Tipo de deck</label>
+            <textarea id="new-deck-description" maxlength="180" placeholder="O que você vai estudar aqui?"></textarea>
+            <button class="primary-button" type="submit"><i class="fa-solid fa-plus"></i> Criar deck</button>
+        </form>
+
+    </div>
+    <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+    <script type="module" src="assets/js/studyflow.js"></script>
+</body>
+</html>

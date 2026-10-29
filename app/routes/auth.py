@@ -38,7 +38,7 @@ async def register(request: Request, usuario: UserRegister, session: Session = D
 @limiter.limit("5/minute")
 async def login(request: Request, response: Response, usuario: UserLogin, session: Session = Depends(get_session)):
 
-    print(request.client.host)
+    # print(request.client.host)
 
     usuario = authenticate_user(usuario.email, usuario.password, session)
 
@@ -50,7 +50,8 @@ async def login(request: Request, response: Response, usuario: UserLogin, sessio
 
     response = JSONResponse(
         content={
-            "message": "Login successful"
+            "message": "Login successful",
+            "bearer_token": bearer_token
         }
     )
     response.set_cookie(
