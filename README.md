@@ -11,8 +11,8 @@ Aplicação de flashcards com FastAPI e frontend estático.
 ## 1) Clonar o projeto
 
 ```bash
-git clone <url-do-repositorio>
-cd novo_crud
+git clone https://github.com/WilliamSSDev/studyflow.git
+cd studyflow
 ```
 
 ## 2) Criar e ativar o ambiente virtual
