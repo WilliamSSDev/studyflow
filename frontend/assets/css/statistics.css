@@ -1,0 +1,127 @@
+:root {
+    --stats-bg: #06161d;
+    --stats-panel: rgba(14, 28, 36, 0.96);
+    --stats-panel-border: rgba(149, 184, 206, 0.18);
+    --stats-text: #edf6ff;
+    --stats-muted: #a9bfd0;
+    --stats-accent: #6ad1b0;
+    --stats-accent-strong: #7fa8ff;
+    --stats-surface: rgba(20, 35, 44, 0.9);
+    --stats-shadow: 0 22px 48px rgba(5, 18, 22, 0.35);
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(circle at top, rgba(90, 165, 145, 0.18), transparent 32%), var(--stats-bg);
+    color: var(--stats-text);
+    font-family: "DM Sans", "Segoe UI", sans-serif;
+}
+
+.page-shell {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 32px 18px;
+}
+
+.statistics-window {
+    width: min(980px, 100%);
+    background: var(--stats-panel);
+    border: 1px solid var(--stats-panel-border);
+    border-radius: 30px;
+    box-shadow: var(--stats-shadow);
+    padding: 28px;
+}
+
+.window-header {
+    margin-bottom: 24px;
+}
+
+.window-header h1,
+.window-header h2 {
+    margin: 0;
+    font-size: clamp(1.6rem, 2vw, 2.4rem);
+    color: var(--stats-text);
+}
+
+.window-subtitle {
+    margin-top: 8px;
+    color: var(--stats-muted);
+}
+
+.stats-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--stats-surface);
+    border: 1px solid var(--stats-panel-border);
+    border-radius: 18px;
+    padding: 18px 20px;
+}
+
+.stat-card .label {
+    display: block;
+    color: var(--stats-muted);
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.stat-card .value {
+    font-size: clamp(1.7rem, 2vw, 2.5rem);
+    font-weight: 700;
+    color: var(--stats-text);
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 20px;
+}
+
+.chart-panel {
+    min-height: 300px;
+    background: var(--stats-surface);
+    border: 1px solid var(--stats-panel-border);
+    border-radius: 20px;
+    padding: 18px;
+}
+
+.chart-panel h3 {
+    margin: 0 0 14px;
+    color: var(--stats-text);
+    font-size: 1.05rem;
+}
+
+.chart-wrap {
+    position: relative;
+    height: 220px;
+}
+
+.window-visible,
+.statistics-window,
+.chart-panel,
+.stat-card,
+.view-cards-window,
+.statistics-section,
+.add-card-section,
+.review-section {
+    display: block !important;
+}
+
+section[hidden],
+[hidden] {
+    display: none !important;
+}
+
+@media (max-width: 760px) {
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+}

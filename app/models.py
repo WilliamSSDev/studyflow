@@ -39,14 +39,13 @@ def get_next_review(difficulty: Difficulty):
 
 class User(Base):
 
-    __tablename__ = 'usuarios'
+    __tablename__ = 'users'
 
     id = Column("id", Integer, nullable=False, autoincrement=True, primary_key=True)
     name = Column("name", String)
     email = Column("email", String, nullable=False)
     password = Column("password", String)
     admin = Column("admin", Boolean, default=False)
-    deleted_at = Column(DateTime, nullable=True)
     current_streak = Column(Integer, default=0)
 
     cards = relationship("Card", back_populates="user")
@@ -77,7 +76,7 @@ class Card(Base):
     interval = Column("interval", Integer, nullable=False)
     review_count = Column("review_count", Integer, default=0)
 
-    user_id = Column(Integer, ForeignKey("usuarios.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
     deck_id = Column(Integer, ForeignKey("decks.id", ondelete="SET NULL"), nullable=True)
 
     user = relationship('User', back_populates='cards')
@@ -92,7 +91,7 @@ class Deck(Base):
     name = Column(String, nullable=False)
     description = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
-    user_id = Column(Integer, ForeignKey("usuarios.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
 
     user = relationship("User", back_populates="decks")
     cards = relationship("Card", back_populates="deck")
@@ -107,7 +106,7 @@ class ReviewLog(Base):
     rating = Column(SqlEnum(Difficulty), nullable=False)
 
     # Relationships
-    user_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     card_id = Column(Integer, ForeignKey("cards.id"), nullable=False)
 
     user = relationship("User", back_populates="review_logs")

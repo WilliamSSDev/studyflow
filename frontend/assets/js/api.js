@@ -2,6 +2,10 @@ const API_BASE_URL = window.location.port === "5500"
     ? "http://localhost:8000"
     : window.location.origin
 
+const selectDeckDropdown = document.querySelector("#decks");
+
+
+
 export async function apiFetch(url, options = {}) {
     return fetch(url, {
         credentials: "include",
@@ -49,20 +53,6 @@ export async function pickCard(deckId = null) {
     return response.json()
 }
 
-export async function addCard(frontContent, backContent, deckId = null) {
-    const response = await apiFetch(`${API_BASE_URL}/cards/add_card`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            front_content: frontContent,
-            back_content: backContent,
-            deck_id: deckId
-        })
-    })
-    return response.json()
-}
 
 export async function getCardsInfo() {
     try {
@@ -101,14 +91,64 @@ export async function logout() {
     })
 }
 
-export async function listDecks() {
-    const response = await apiFetch(`${API_BASE_URL}/decks`)
-    if (!response.ok) throw new Error("Não foi possível carregar os decks.")
-    return response.json()
+if (selectDeckDropdown) {
+    selectDeckDropdown.addEventListener("change", () => {
+        const selectedDeck = selectDeckDropdown.value;
+        console.log(selectedDeck);
+    });
 }
 
+export async function listDecks() {
+    const response = await apiFetch(`${API_BASE_URL}/decks`)
+
+    if (!response.ok) throw new Error("Não foi possível carregar os decks.")
+
+    const decks = await response.json();
+
+    if (selectDeckDropdown) {
+
+        decks.forEach(deck => {
+
+            const newOption = document.createElement('option');
+
+            newOption.value = deck.id;
+            newOption.textContent = deck.name;
+
+            selectDeckDropdown.appendChild(newOption);
+            
+        });
+    }
+    // console.log(selectDeckDropdown.value)
+    return decks
+}
+
+export async function addCard(frontContent, backContent, deckId = null) {
+    // if (!deckId){
+    //     deckId = selectDeckDropdown.value;
+    // }
+    const response = await apiFetch(`${API_BASE_URL}/cards/add_card`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            front_content: frontContent,
+            back_content: backContent,
+            deck_id: deckId
+        })
+    })
+    const data = await response.json();
+    console.log("response", data);
+
+    if (!response.ok) {
+        throw new Error(data.detail || "Erro ao salvar o flashcard.");
+    }
+
+    return data;
+    }
+
 export async function createDeck(name, description = "") {
-    const response = await apiFetch(`${API_BASE_URL}/decks`, {
+    const response = await apiFetch(`${API_BASE_URL}/decks/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description })

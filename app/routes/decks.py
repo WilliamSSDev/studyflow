@@ -9,17 +9,7 @@ from app.services.deck_service import serialize_deck
 
 decks_route = APIRouter(prefix="/decks", tags=["decks"])
 
-
-@decks_route.get("", response_model=list[DeckResponse])
-def list_decks(
-    usuario: User = Depends(verify_token),
-    session: Session = Depends(get_session),
-):
-    decks = session.query(Deck).filter(Deck.user_id == usuario.id).order_by(Deck.created_at.desc()).all()
-    return [serialize_deck(deck, session, usuario.id) for deck in decks]
-
-
-@decks_route.post("", response_model=DeckResponse, status_code=status.HTTP_201_CREATED)
+@decks_route.post("/create", response_model=DeckResponse, status_code=status.HTTP_201_CREATED)
 def create_deck(
     deck_data: DeckCreate,
     usuario: User = Depends(verify_token),
@@ -34,6 +24,14 @@ def create_deck(
     session.commit()
     session.refresh(deck)
     return serialize_deck(deck, session, usuario.id)
+
+@decks_route.get("", response_model=list[DeckResponse])
+def list_decks(
+    usuario: User = Depends(verify_token),
+    session: Session = Depends(get_session),
+):
+    decks = session.query(Deck).filter(Deck.user_id == usuario.id).order_by(Deck.created_at.desc()).all()
+    return [serialize_deck(deck, session, usuario.id) for deck in decks]
 
 
 @decks_route.get("/{deck_id}", response_model=DeckResponse)

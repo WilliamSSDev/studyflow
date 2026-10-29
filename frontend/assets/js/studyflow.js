@@ -1,6 +1,5 @@
 import {
     addCard,
-    apiFetch,
     createDeck,
     deleteCard,
     getCardsInfo,
@@ -14,7 +13,7 @@ import {
     verifyAuthentication,
     getReviewActivity,
 } from "./api.js"
-import { createActivityChart } from "./charts.js"
+import { createActivityChart } from "../../charts.js"
 
 const elements = {
     userInfo: document.getElementById("user-info"),
@@ -65,6 +64,7 @@ const elements = {
     activityAverage: document.getElementById("activity-average"),
     activityChart: document.getElementById("activityChart"),
     legacyViewCardsButton: document.getElementById("view-cards"),
+    inicioButton: document.getElementById("home-link"),
 }
 
 const state = {
@@ -420,24 +420,27 @@ async function initialize() {
         if (event.target === elements.deckModal) closeDeckModal()
     })
     elements.backToDecks.addEventListener("click", showDecks)
-    elements.workspaceAddButton.addEventListener("click", showEditor)
+    elements.workspaceAddButton.addEventListener("click", () => { window.location.href = "add_card.html"; })
     elements.workspaceStudyButton.addEventListener("click", startStudy)
-    elements.legacyAddButton.addEventListener("click", showEditor)
+    elements.legacyAddButton.addEventListener("click", () => {
+        if (!state.activeDeck) {
+            showToast("Abra um deck antes de criar um flashcard.", "error")
+            return
+        }
+        window.location.href = "add_card.html";
+    })
     elements.legacyReviewButton.addEventListener("click", startStudy)
     // elements.statisticsButton.addEventListener("click", () => document.getElementById("activity-panel").scrollIntoView({ behavior: "smooth" }))
     elements.statisticsButton.addEventListener("click", () => {
 
         if (!activityChart) {
             loadActivity().catch(() => showToast("Não foi possível carregar as estatísticas.", "error"))
-        } else if (document.getElementById("activity-panel").style.display === "block") {
-            document.getElementById("activity-panel").style.display = "none";
         } else {
-            document.getElementById("activity-panel").style.display = "block";
-            document.getElementById("activity-panel").scrollIntoView({ behavior: "smooth" });
+            window.location.href = "statistics.html"
         }
         
     })
-    elements.cancelAddCard.addEventListener("click", closeEditor)
+    // elements.cancelAddCard.addEventListener("click", closeEditor)
     elements.answerButton.addEventListener("click", () => {
         state.isFlipped = !state.isFlipped
         elements.cardInner.classList.toggle("is-flipped", state.isFlipped)
@@ -483,7 +486,16 @@ async function saveDeck(event) {
 
 async function saveCard(event) {
     event.preventDefault()
-    if (state.isSaving || !state.activeDeck) return
+
+    const dropdown = document.querySelector("#decks");
+    const deckId = Number(dropdown?.value);
+
+    if (state.isSaving) return;
+
+    if (!deckId) {
+        showToast("Selecione um deck.", "error");
+        return;
+    }
     const front = sanitizeHtml(elements.frontContent.innerHTML)
     const back = sanitizeHtml(elements.backContent.innerHTML)
     if (!front || !back) {
@@ -495,11 +507,11 @@ async function saveCard(event) {
     button.disabled = true
     button.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Salvando...'
     try {
-        await addCard(front, back, state.activeDeck.id)
+        await addCard(front, back, deckId)
         elements.frontContent.innerHTML = ""
         elements.backContent.innerHTML = ""
         showToast("Flashcard criado com sucesso.")
-        closeEditor()
+        // closeEditor()
     } catch {
         showToast("Não foi possível salvar o flashcard.", "error")
     } finally {
@@ -508,5 +520,7 @@ async function saveCard(event) {
         button.innerHTML = '<i class="fa-solid fa-check"></i> Salvar flashcard'
     }
 }
-
-initialize().catch(() => showToast("Não foi possível carregar o StudyFlow.", "error"))
+initialize().catch((error) => {
+    console.error("Erro ao inicializar:", error);
+    showToast("Não foi possível carregar o StudyFlow.", "error");
+});
